@@ -178,6 +178,10 @@ class PSUControlPanel(Frame):
         if ports and not self.port_var.get():
             self.port_var.set(ports[0])
 
+    def rescan_ports(self):
+        """Публичный метод для глобальной кнопки 'COM Rescan All'."""
+        self._refresh_ports()
+
     def _toggle_connect(self):
         if self.psu.connected:
             self.psu.disconnect()
