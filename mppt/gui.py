@@ -80,6 +80,25 @@ class MPPTTerminalPanel(Frame):
             activeforeground=fg,
         )
         self.btn_save.pack(side=LEFT, padx=4, pady=4)
+        
+        # ---------------- Кнопка "+" ----------------
+        self._plus_running = False  # флаг удержания
+
+        self.btn_plus = Button(
+            top,
+            text="+",
+            bg="#303134",
+            fg=fg,
+            activebackground="#3c4043",
+            activeforeground=fg,
+            width=4,
+        )
+        self.btn_plus.pack(side=LEFT, padx=4, pady=4)
+
+        # обработчики удержания
+        self.btn_plus.bind("<ButtonPress-1>", lambda e: self._plus_press())
+        self.btn_plus.bind("<ButtonRelease-1>", lambda e: self._plus_release())
+
 
         # ---------------- Canvas-терминал ----------------
         self.canvas = Canvas(self, bg=bg, highlightthickness=0)
@@ -213,6 +232,41 @@ class MPPTTerminalPanel(Frame):
 
             # Обновляем UI
             self._schedule_render()
+            
+    # --------------------------------------------------------------
+    # +++++++++
+    # --------------------------------------------------------------       
+    
+    def _plus_press(self):
+        """Начать непрерывную отправку '+' при удержании кнопки."""
+        if not self.running or not self.serial.ser:
+            return
+
+        if self._plus_running:
+            return
+
+        self._plus_running = True
+
+        def worker():
+            while self._plus_running and self.running and self.serial.ser:
+                try:
+                    self.serial.ser.write(b"+")
+                except Exception:
+                    break
+                time.sleep(0.07)  # частота повторения 70 мс
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _plus_release(self):
+        """Остановить поток отправки '+' и отправить один плюс."""
+        self._plus_running = False
+
+        try:
+            if self.running and self.serial.ser:
+                self.serial.ser.write(b"+")
+        except:
+            pass
+
 
     # --------------------------------------------------------------
     # Маскирование UID в pyte buffer
