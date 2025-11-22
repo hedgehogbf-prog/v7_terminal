@@ -1,11 +1,9 @@
-# mppt/gui.py — финальная рабочая версия
-# --------------------------------------------------
-# ✔ стабильный рендер без мерцания
-# ✔ правильная работа с ANSI
-# ✔ строгая сборка блока post-ESC[2J
-# ✔ автоподключение к ST-Link VCP
-# ✔ идеальный _reader_loop без слипания строк
-# --------------------------------------------------
+# mppt/gui.py — версия с PyteTerminal + CanvasTerminal
+# -----------------------------------------------------------
+# ✔ pyte эмулирует настоящий терминал (ANSI, курсор, clear)
+# ✔ CanvasTerminal рисует сетку 64x18 без мерцания
+# ✔ ОБНОВЛЕНИЯ GUI идут только из main-thread через .after()
+# -----------------------------------------------------------
 
 import threading
 import time
@@ -18,25 +16,17 @@ from tkinter import (
     Button,
     StringVar,
     Label,
+    Canvas,
 )
 from tkinter import ttk
-from tkinter.scrolledtext import ScrolledText
 
 from mppt.serial_auto import SerialAuto
-from mppt.parser import MPPTParser
-from mppt.renderer import MPPTRenderer
 from mppt.logger import MPPTLogger
+from mppt.terminal_pyte import PyteTerminal
+from mppt.terminal_canvas import CanvasTerminal
 
 
 class MPPTTerminalPanel(Frame):
-    """
-    MPPT Terminal Panel:
-    - читает сырые ANSI со ST-Link VCP
-    - собирает кадры MPPT как в реальном терминале
-    - выводит без мерцания
-    - поддерживает автоконнект
-    """
-
     def __init__(self, master, bg="#202124", fg="#e8eaed", **kwargs):
         super().__init__(master, bg=bg, **kwargs)
         self.bg = bg
@@ -91,33 +81,39 @@ class MPPTTerminalPanel(Frame):
         )
         self.btn_save.pack(side=LEFT, padx=4, pady=4)
 
-        # ---------------- Терминал ----------------
-        self.text = ScrolledText(
-            self,
-            bg="#202124",
-            fg="#e8eaed",
-            insertbackground="#e8eaed",
-            state="disabled",
-            wrap="none",
-            height=18,
-        )
-        self.text.pack(side=TOP, fill=BOTH, expand=True, padx=4, pady=4)
+        # ---------------- Canvas-терминал ----------------
+        self.canvas = Canvas(self, bg=bg, highlightthickness=0)
+        self.canvas.pack(side=TOP, fill=BOTH, expand=True, padx=4, pady=4)
 
-        # ---------------- MPPT логика ----------------
+        # ---------------- Логика MPPT ----------------
         self.serial = SerialAuto(baudrate=115200)
-        self.renderer = MPPTRenderer(self.text)
+        # Эмулятор терминала pyte
+        self.term = PyteTerminal(cols=64, rows=18)
+        # Рендер pyte-экрана на Canvas
+        self.canvas_term = CanvasTerminal(
+            self.canvas,
+            self.term,
+            cols=64,
+            rows=18,
+            bg=bg,
+            font_name="Consolas",
+            font_size=11,
+        )
+
         self.logger = MPPTLogger(status_callback=self._set_status_stub)
-        self.parser = MPPTParser(on_block_ready=self.renderer.render_block)
 
         self.running = False
         self.thread = None
 
+        # флаг, чтобы не заспамить .after()
+        self._render_scheduled = False
+
         self.rescan_ports()
         self.after(500, self._autoconnect_loop)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # Статус
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     def _set_status_stub(self, msg, color="white"):
         print(msg)
 
@@ -125,9 +121,9 @@ class MPPTTerminalPanel(Frame):
         self._set_status_stub = status_func
         self.logger.status_callback = status_func
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # Работа с портами
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     def rescan_ports(self):
         ports = self.serial.list_ports()
         devs = [p.device for p in ports]
@@ -142,20 +138,22 @@ class MPPTTerminalPanel(Frame):
             self.combo_port["values"] = []
             self._set_status_stub("MPPT: портов нет", "yellow")
 
-    # ------------------------------------------------------------------
+    def rescan_ports_external(self):
+        self.rescan_ports()
+
+    # --------------------------------------------------------------
     # Автоконнект
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     def _autoconnect_loop(self):
         if not self.running:
-            port_name = self.port_var.get().strip() or None
-            if self.serial.ensure(port_name):
+            port = self.port_var.get().strip() or None
+            if self.serial.ensure(port):
                 self.running = True
                 self.btn_connect.config(
                     text=f"Disconnect ({self.serial.current_port})"
                 )
                 self._set_status_stub(
-                    f"MPPT: автоподключено ({self.serial.current_port})",
-                    "green",
+                    f"MPPT: автоподключено ({self.serial.current_port})", "green"
                 )
                 self.thread = threading.Thread(
                     target=self._reader_loop, daemon=True
@@ -164,9 +162,9 @@ class MPPTTerminalPanel(Frame):
 
         self.after(500, self._autoconnect_loop)
 
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     # Ручное подключение
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
     def toggle_connect(self):
         if self.running:
             self.running = False
@@ -175,12 +173,12 @@ class MPPTTerminalPanel(Frame):
             self._set_status_stub("MPPT: отключено", "yellow")
             return
 
-        port_name = self.port_var.get().strip()
-        if not self.serial.ensure(port_name):
+        port = self.port_var.get().strip()
+        if not self.serial.ensure(port):
             self._set_status_stub("MPPT: не удалось открыть порт", "red")
             return
 
-        if not port_name:
+        if not port:
             self.port_var.set(self.serial.current_port)
 
         self.running = True
@@ -192,26 +190,15 @@ class MPPTTerminalPanel(Frame):
         self.thread = threading.Thread(target=self._reader_loop, daemon=True)
         self.thread.start()
 
-    # ------------------------------------------------------------------
-    # IDEAL ANSI LINE READER
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
+    # Чтение UART (фоновый поток, БЕЗ прямого доступа к Tk)
+    # --------------------------------------------------------------
     def _reader_loop(self):
-        """
-        Стабильный сборщик строк:
-        ✔ режет только по '\n'
-        ✔ не ломает ANSI
-        ✔ убирает \x00 полностью
-        ✔ не смешивает строки
-        ✔ не пропускает содержимое
-        """
-        buf = ""
-
         while self.running and self.serial.ser:
             try:
                 data = self.serial.ser.read_all()
             except Exception:
                 self._set_status_stub("MPPT: ошибка чтения", "red")
-                self.serial.close()
                 self.running = False
                 break
 
@@ -219,28 +206,39 @@ class MPPTTerminalPanel(Frame):
                 time.sleep(0.01)
                 continue
 
-            try:
-                text = data.decode(errors="ignore")
-            except Exception:
-                continue
+            text_raw = data.decode(errors="ignore")
+            text_raw = text_raw.replace("\x00", "")
 
-            text = text.replace("\x00", "")
+            # Кормим pyte в фоновом потоке (без Tk)
+            self.term.feed(text_raw)
 
-            for ch in text:
-                if ch == "\n":
-                    line = buf.rstrip("\r")
-                    buf = ""
+            # Просим перерисовать Canvas в главном потоке
+            self._schedule_render()
 
-                    if not line.strip():
-                        continue
+    # --------------------------------------------------------------
+    # Планировщик рендера (UI только через .after)
+    # --------------------------------------------------------------
+    def _schedule_render(self):
+        if self._render_scheduled:
+            return
+        self._render_scheduled = True
+        # отрисовка в главном потоке
+        self.after(0, self._do_render)
 
-                    # Передача строки парсеру
-                    self.parser.feed_line(line)
-                else:
-                    buf += ch
+    def _do_render(self):
+        self._render_scheduled = False
+        if not self.running:
+            return
+        # перерисовываем только изменившиеся ячейки
+        self.canvas_term.render_diff()
 
-    # ------------------------------------------------------------------
-    # Логирование блока
-    # ------------------------------------------------------------------
+    # --------------------------------------------------------------
+    # Логирование блока (для Excel и т.п.)
+    # --------------------------------------------------------------
     def save_block(self):
-        self.logger.save_block(self.renderer.last_block)
+        """
+        Сохраняем текущий "экран" pyte как список строк.
+        MPPTLogger дальше сделает txt/xlsx.
+        """
+        block = self.term.get_lines()
+        self.logger.save_block(block)
