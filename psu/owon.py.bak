@@ -1,128 +1,118 @@
 # psu/owon.py
 """
-Простой драйвер для лабораторного блока питания OWON по последовательному порту.
-
-Здесь используется типичный SCPI-подобный протокол:
-    *IDN?
-    MEAS:VOLT?
-    MEAS:CURR?
-    :VOLT <value>
-    :CURR <value>
-    :OUTP ON|OFF
-
-Если у твоего ЛБП команды отличаются — достаточно поправить методы
-set_voltage_current(), set_output() и read_measurements().
+Обёртка вокруг OwonPSU из файла owon_psu_qt.py
+чтобы GUI мог использовать ЛБП SPE6103.
 """
 
-import threading
+from owon_psu_qt import OwonPSU     # ← твой рабочий драйвер
 import serial
+import time
 
 
-class OwonPSU:
-    def __init__(self, baudrate: int = 9600, timeout: float = 0.2):
-        self.baudrate = baudrate
-        self.timeout = timeout
-        self.ser: serial.Serial | None = None
-        self.port: str | None = None
-        self.lock = threading.Lock()
-        self.connected: bool = False
-
-    # ---------- базовые операции ----------
-
-    def connect(self, port: str) -> bool:
-        """Открыть последовательный порт."""
-        self.disconnect()
-        try:
-            self.ser = serial.Serial(port, self.baudrate, timeout=self.timeout)
-            self.port = port
-            self.connected = True
-            return True
-        except Exception:
-            self.ser = None
-            self.port = None
-            self.connected = False
-            return False
-
-    def disconnect(self):
-        """Закрыть порт."""
-        if self.ser:
-            try:
-                self.ser.close()
-            except Exception:
-                pass
-        self.ser = None
+class OwonPSUWrapper:
+    def __init__(self):
+        self.device: OwonPSU | None = None
         self.port = None
         self.connected = False
 
-    # ---------- низкоуровневые команды ----------
+    # ----------------------------------------------------------
+    # ПОДКЛЮЧЕНИЕ
+    # ----------------------------------------------------------
 
-    def _write(self, cmd: str) -> bool:
-        """Отправка команды без ожидания ответа."""
-        with self.lock:
-            if not self.ser or not self.ser.is_open:
-                self.connected = False
-                return False
+    def connect(self, port: str) -> bool:
+        try:
+            self.device = OwonPSU(port)
+        except Exception as e:
+            print("Ошибка создания драйвера:", e)
+            self.device = None
+            self.connected = False
+            return False
+
+        self.port = port
+        self.connected = True
+        return True
+
+    # ----------------------------------------------------------
+    # ОТКЛЮЧЕНИЕ
+    # ----------------------------------------------------------
+
+    def disconnect(self):
+        if self.device:
             try:
-                if not cmd.endswith("\n"):
-                    cmd += "\n"
-                self.ser.write(cmd.encode("ascii"))
-                return True
+                self.device.close()
             except Exception:
-                self.connected = False
-                return False
+                pass
 
-    def _query(self, cmd: str) -> str | None:
-        """Отправка команды и чтение одной строки ответа."""
-        with self.lock:
-            if not self.ser or not self.ser.is_open:
-                self.connected = False
-                return None
-            try:
-                if not cmd.endswith("\n"):
-                    cmd += "\n"
-                # немного почистим входной буфер
+        self.device = None
+        self.connected = False
+
+    # ----------------------------------------------------------
+    # RESET COM
+    # ----------------------------------------------------------
+
+    def reset_com(self):
+        """Полный сброс COM порта через переоткрытие."""
+
+        if not self.port:
+            return False
+
+        try:
+            # Закрыть
+            if self.device:
                 try:
-                    self.ser.reset_input_buffer()
-                except Exception:
+                    self.device.close()
+                except:
                     pass
-                self.ser.write(cmd.encode("ascii"))
-                line = self.ser.readline().decode(errors="ignore").strip()
-                return line
-            except Exception:
-                self.connected = False
-                return None
 
-    # ---------- SCPI-уровень ----------
+            time.sleep(0.3)
 
-    def identify(self) -> str | None:
-        """Вернуть строку идентификации прибора, если поддерживается *IDN?."""
-        return self._query("*IDN?")
+            # Открыть заново
+            self.device = OwonPSU(self.port)
+            self.connected = True
+            return True
 
-    def set_output(self, on: bool) -> bool:
-        """Включить / выключить выход."""
-        return self._write(f":OUTP {'ON' if on else 'OFF'}")
-
-    def set_voltage_current(self, u: float, i: float) -> None:
-        """
-        Установить напряжение и ток.
-        Если команда твоего ЛБП отличается — поправь здесь.
-        """
-        self._write(f":VOLT {u:.3f}")
-        self._write(f":CURR {i:.3f}")
-
-    def read_measurements(self) -> tuple[float | None, float | None]:
-        """
-        Прочитать измеренные напряжение и ток.
-        Возвращает (U, I) в единицах Вольт и Ампер.
-        """
-        v_str = self._query("MEAS:VOLT?")
-        a_str = self._query("MEAS:CURR?")
-        try:
-            v_val = float(v_str) if v_str is not None else None
         except Exception:
-            v_val = None
+            return False
+
+    # ----------------------------------------------------------
+    # ИЗМЕРЕНИЯ
+    # ----------------------------------------------------------
+
+    def read_measurements(self):
+        """Возвращает (U, I) или (None, None)."""
+        if not self.connected or not self.device:
+            return None, None
+
         try:
-            a_val = float(a_str) if a_str is not None else None
+            V = self.device.measure_voltage()
+            A = self.device.measure_current()
+            return V, A
         except Exception:
-            a_val = None
-        return v_val, a_val
+            return None, None
+
+    # ----------------------------------------------------------
+    # УСТАНОВКА НАПРЯЖЕНИЯ / ТОКА
+    # ----------------------------------------------------------
+
+    def set_voltage_current(self, v, a):
+        if not self.connected or not self.device:
+            return
+
+        try:
+            self.device.set_voltage(v)
+            self.device.set_current(a)
+        except Exception as e:
+            print("Ошибка set_voltage_current:", e)
+
+    # ----------------------------------------------------------
+    # УПРАВЛЕНИЕ ВЫХОДОМ
+    # ----------------------------------------------------------
+
+    def set_output(self, state: bool):
+        if not self.connected or not self.device:
+            return
+
+        try:
+            self.device.set_output(state)
+        except Exception as e:
+            print("Ошибка set_output:", e)

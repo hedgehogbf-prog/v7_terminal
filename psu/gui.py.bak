@@ -1,24 +1,34 @@
 # psu/gui.py
 """
-GUI управления OWON SPE6103 (через owon-psu).
+Панель управления ЛБП OWON (серия SPE, например SPE6103)
+для проекта v7_terminal.
+
+- Использует библиотеку owon_psu (pip install owon-psu-control)
+- Импорт: from owon_psu import OwonPSU
+- Опрос ЛБП каждые 200 мс
+- Пресеты напряжения/тока с редактированием
 """
 
-import json
-import os
 from tkinter import (
-    Frame, Label, Button, Entry, StringVar,
-    LEFT, RIGHT, TOP, BOTTOM, X, Y, BOTH,
-    Toplevel, Listbox, SINGLE, END
+    Frame, TOP, BOTTOM, LEFT, RIGHT, BOTH, X, Y, END,
+    Label, Button, Entry, Toplevel, Listbox, SINGLE, StringVar
 )
-from tkinter import font as tkfont
 from tkinter import ttk
+from tkinter import font as tkfont
+
+import os
+import json
 
 from serial.tools import list_ports
-from psu.owon import OwonPSU
+from owon_psu import OwonPSU
 
+
+# Файл пресетов: C:\Users\<user>\Documents\v7\psu_presets.json
 DEFAULT_PRESETS_PATH = os.path.join(
     os.path.expanduser("~"),
-    "Documents", "v7", "lbp_presets.json"
+    "Documents",
+    "v7",
+    "psu_presets.json",
 )
 
 DEFAULT_PRESETS = {
@@ -31,374 +41,679 @@ DEFAULT_PRESETS = {
 class PSUControlPanel(Frame):
     POLL_INTERVAL_MS = 200
 
-    def __init__(self, master, bg="#202124", fg="#e8eaed", **kw):
-        super().__init__(master, bg=bg, **kw)
+    def __init__(self, master, bg="#202124", fg="#e8eaed", **kwargs):
+        super().__init__(master, bg=bg, **kwargs)
         self.bg = bg
         self.fg = fg
 
-        self.psu = OwonPSU()
+        # Объект ЛБП (из owon_psu)
+        self.psu: OwonPSU | None = None
+        self.connected = False
+        self.current_output_state = False
+
+        # COM-порт
         self.port_var = StringVar()
 
-        self.u_meas_var = StringVar(value="0.00 V")
-        self.i_meas_var = StringVar(value="0.000 A")
+        # Измеренные значения (большие цифры)
+        self.u_meas_var = StringVar(value="--.-- V")
+        self.i_meas_var = StringVar(value="--.-- A")
 
+        # Уставки (в текстовых полях)
         self.u_set_var = StringVar(value="0.0")
         self.i_set_var = StringVar(value="0.0")
 
-        # пресеты
+        # Подписи уставок (маленькие)
+        self.u_set_label_var = StringVar(value="—")
+        self.i_set_label_var = StringVar(value="—")
+
+        # Пресеты
         self.presets_path = DEFAULT_PRESETS_PATH
-        self.presets = {}
-        self._load_presets()
+        self.presets: dict[str, dict[str, float]] = {}
+        self.preset_buttons: list[Button] = []
 
-        # шрифты
+        # Глобальный статусбар (из layout)
+        self._global_status_cb = None
+
+        # Шрифты
         self.font_big = tkfont.Font(size=28, weight="bold")
-        self.font_small = tkfont.Font(size=12)
+        self.font_small = tkfont.Font(size=11)
 
+        # ID для after()
+        self._measure_job = None
+
+        # Построение UI
         self._build_ui()
 
-        # запуск опроса ЛБП
-        self.after(self.POLL_INTERVAL_MS, self._poll_psu)
+        # Загрузка пресетов
+        self._load_presets()
+        self._refresh_presets_ui()
 
-    # ============================================================
-    #   BUILD UI
-    # ============================================================
+        # Первоначальный рескан портов
+        self.rescan_ports()
 
+    # ------------------------------------------------------------------
+    # Связь с общим статусбаром
+    # ------------------------------------------------------------------
+    def set_global_status(self, cb):
+        """
+        cb(message: str, color: str)
+        """
+        self._global_status_cb = cb
+
+    def _set_status(self, text: str, color: str = "white"):
+        self.status_label.config(text=text, fg=color)
+        if self._global_status_cb:
+            self._global_status_cb(text, color=color)
+
+    # ------------------------------------------------------------------
+    # Построение интерфейса
+    # ------------------------------------------------------------------
     def _build_ui(self):
-        # Верхняя панель – выбор порта
+        # Верхняя строка: COM, Обновить, Подключить, Reset
         top = Frame(self, bg=self.bg)
         top.pack(side=TOP, fill=X, padx=4, pady=4)
 
-        Label(top, text="ЛБП:", bg=self.bg, fg=self.fg).pack(side=LEFT)
+        Label(top, text="COM ЛБП:", bg=self.bg, fg=self.fg).pack(side=LEFT)
 
-        self.combo_port = ttk.Combobox(top, textvariable=self.port_var, width=10)
+        self.combo_port = ttk.Combobox(
+            top, textvariable=self.port_var, width=10, state="readonly"
+        )
         self.combo_port.pack(side=LEFT, padx=4)
-        self._refresh_ports()
 
-        Button(
-            top, text="Обновить", command=self._refresh_ports,
-            bg="#303134", fg=self.fg
-        ).pack(side=LEFT, padx=2)
+        btn_rescan = Button(
+            top,
+            text="Обновить",
+            command=self.rescan_ports,
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
+        )
+        btn_rescan.pack(side=LEFT, padx=2)
 
         self.btn_connect = Button(
-            top, text="Подключить",
+            top,
+            text="Подключить",
             command=self._toggle_connect,
-            bg="#303134", fg=self.fg
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
         )
         self.btn_connect.pack(side=LEFT, padx=2)
 
-        Button(
-            top, text="Reset COM",
+        self.btn_reset = Button(
+            top,
+            text="Reset COM",
             command=self._reset_com,
-            bg="#303134", fg=self.fg
-        ).pack(side=LEFT, padx=2)
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
+        )
+        self.btn_reset.pack(side=LEFT, padx=2)
 
-        # ---------------------------
-        # Статусбар (перенесён)
-        # ---------------------------
+        # Статусбар ЛБП над "Измерено"
         self.status_label = Label(
-            self, text="Не подключено",
-            bg=self.bg, fg=self.fg,
+            self,
+            text="Отключено",
+            bg=self.bg,
+            fg="#ff5555",
             anchor="w"
         )
         self.status_label.pack(side=TOP, fill=X, padx=4)
 
-        # ---------------------------
-        # Центральная часть
-        # ---------------------------
+        # Центральная область: измерено (слева) и уставки (справа)
         center = Frame(self, bg=self.bg)
         center.pack(side=TOP, fill=X, padx=4, pady=4)
 
-        # Блок измеренных значений
+        # ЛЕВАЯ колонка: Измерено
         left = Frame(center, bg=self.bg)
         left.pack(side=LEFT, fill=BOTH, expand=True)
 
         Label(left, text="Измерено", bg=self.bg, fg=self.fg).pack(anchor="w")
 
-        Label(left, textvariable=self.u_meas_var,
-              bg=self.bg, fg="#3aff3a", font=self.font_big).pack(anchor="w")
+        Label(
+            left,
+            textvariable=self.u_meas_var,
+            bg=self.bg,
+            fg="#55ff55",
+            font=self.font_big,
+        ).pack(anchor="w")
 
-        Label(left, textvariable=self.i_meas_var,
-              bg=self.bg, fg="#3aff3a", font=self.font_big).pack(anchor="w")
+        Label(
+            left,
+            textvariable=self.i_meas_var,
+            bg=self.bg,
+            fg="#55ff55",
+            font=self.font_big,
+        ).pack(anchor="w")
 
-        # Блок установок
+        # ПРАВАЯ колонка: Установлено
         right = Frame(center, bg=self.bg)
         right.pack(side=RIGHT, fill=Y)
 
         Label(right, text="Установлено", bg=self.bg, fg=self.fg).pack(anchor="w")
 
-        row_u = Frame(right, bg=self.bg); row_u.pack(fill=X, pady=2)
-        Label(row_u, text="U, В:", bg=self.bg, fg=self.fg).pack(side=LEFT)
-        Entry(row_u, textvariable=self.u_set_var,
-              bg="#303134", fg=self.fg, insertbackground=self.fg, width=8).pack(side=LEFT, padx=2)
+        # U-set
+        row_u = Frame(right, bg=self.bg)
+        row_u.pack(fill=X, pady=2)
+        Label(row_u, text="U (В):", bg=self.bg, fg=self.fg).pack(side=LEFT)
+        Entry(
+            row_u,
+            textvariable=self.u_set_var,
+            bg="#303134",
+            fg=self.fg,
+            insertbackground=self.fg,
+            width=8,
+        ).pack(side=LEFT, padx=3)
+        Label(
+            row_u,
+            textvariable=self.u_set_label_var,
+            bg=self.bg,
+            fg="#a0a0a0",
+            font=self.font_small,
+        ).pack(side=LEFT, padx=2)
 
-        row_i = Frame(right, bg=self.bg); row_i.pack(fill=X, pady=2)
-        Label(row_i, text="I, А:", bg=self.bg, fg=self.fg).pack(side=LEFT)
-        Entry(row_i, textvariable=self.i_set_var,
-              bg="#303134", fg=self.fg, insertbackground=self.fg, width=8).pack(side=LEFT, padx=2)
+        # I-set
+        row_i = Frame(right, bg=self.bg)
+        row_i.pack(fill=X, pady=2)
+        Label(row_i, text="I (А):", bg=self.bg, fg=self.fg).pack(side=LEFT)
+        Entry(
+            row_i,
+            textvariable=self.i_set_var,
+            bg="#303134",
+            fg=self.fg,
+            insertbackground=self.fg,
+            width=8,
+        ).pack(side=LEFT, padx=3)
+        Label(
+            row_i,
+            textvariable=self.i_set_label_var,
+            bg=self.bg,
+            fg="#a0a0a0",
+            font=self.font_small,
+        ).pack(side=LEFT, padx=2)
 
-        Button(
-            right, text="Применить",
+        # Кнопка "Применить"
+        btn_apply = Button(
+            right,
+            text="Применить",
             command=self._apply_setpoints,
-            bg="#303134", fg=self.fg
-        ).pack(fill=X, pady=4)
-
-        self.btn_output = Button(
-            right, text="Выход: OFF",
-            command=self._toggle_output,
-            bg="#303134", fg=self.fg
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
         )
-        self.btn_output.pack(fill=X)
+        btn_apply.pack(fill=X, pady=4)
 
-        # ---------------------------
-        # Пресеты
-        # ---------------------------
+        # Кнопка "Выход ON/OFF"
+        self.btn_output = Button(
+            right,
+            text="Выход: OFF",
+            command=self._toggle_output,
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
+            state="disabled",
+        )
+        self.btn_output.pack(fill=X, pady=2)
+
+        # Блок пресетов
         presets_frame = Frame(self, bg=self.bg)
         presets_frame.pack(side=TOP, fill=BOTH, expand=True, padx=4, pady=4)
 
-        Label(presets_frame, text="Пресеты", bg=self.bg, fg=self.fg).pack(anchor="w")
+        top_presets = Frame(presets_frame, bg=self.bg)
+        top_presets.pack(side=TOP, fill=X)
 
-        Button(
-            presets_frame, text="Редактировать",
+        Label(top_presets, text="Пресеты", bg=self.bg, fg=self.fg).pack(side=LEFT)
+
+        btn_edit = Button(
+            top_presets,
+            text="Редактировать",
             command=self._open_presets_editor,
-            bg="#303134", fg=self.fg
-        ).pack(anchor="e")
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
+        )
+        btn_edit.pack(side=RIGHT)
 
-        self.container_presets = Frame(presets_frame, bg=self.bg)
-        self.container_presets.pack(fill=BOTH, expand=True)
+        self.presets_container = Frame(presets_frame, bg=self.bg)
+        self.presets_container.pack(side=TOP, fill=BOTH, expand=True)
 
-        self._rebuild_presets()
+    # ------------------------------------------------------------------
+    # Работа с COM-портами
+    # ------------------------------------------------------------------
+    def rescan_ports(self):
+        """Обновить список COM-портов ЛБП."""
+        ports = list(list_ports.comports())
+        devs = [p.device for p in ports]
 
-    # ============================================================
-    #   PORTS
-    # ============================================================
+        self.combo_port["values"] = devs
 
-    def _refresh_ports(self):
-        ports = [p.device for p in list_ports.comports()]
-        self.combo_port["values"] = ports
-        if ports and not self.port_var.get():
-            self.port_var.set(ports[0])
+        if devs:
+            if self.port_var.get() not in devs:
+                self.port_var.set(devs[0])
+            self._set_status("Порты ЛБП обновлены", "cyan")
+        else:
+            self.port_var.set("")
+            self._set_status("ЛБП: нет доступных портов", "yellow")
 
-    def _toggle_connect(self):
-        if self.psu.connected:
-            self.psu.disconnect()
+    # используется из layout.AppLayout._rescan_all_com()
+    def rescan_ports_external(self):
+        self.rescan_ports()
+
+    # ------------------------------------------------------------------
+    # Подключение/отключение ЛБП
+    # ------------------------------------------------------------------
+        def _toggle_connect(self):
+        """Подключить / отключить ЛБП."""
+        # --- Отключение ---
+        if self.connected and self.psu:
+            if self._measure_job:
+                self.after_cancel(self._measure_job)
+                self._measure_job = None
+
+            try:
+                self.psu.close()
+            except:
+                pass
+
+            self.psu = None
+            self.connected = False
+            self.current_output_state = False
+
             self.btn_connect.config(text="Подключить")
-            self.status_label.config(text="Отключено")
+            self.btn_output.config(state="disabled", text="Выход: OFF")
+            self.u_meas_var.set("--.-- V")
+            self.i_meas_var.set("--.-- A")
+            self.u_set_label_var.set("—")
+            self.i_set_label_var.set("—")
+
+            self._set_status("ЛБП отключён", "yellow")
             return
 
-        port = self.port_var.get()
+        # --- Подключение ---
+        port = self.port_var.get().strip()
         if not port:
-            self.status_label.config(text="Порт не выбран", fg="#ff5555")
+            self._set_status("ЛБП: порт не выбран", "red")
             return
 
-        ok = self.psu.connect(port)
-        if not ok:
-            self.status_label.config(text="Ошибка подключения", fg="#ff5555")
-            return
+        try:
+            # 1) создаём объект из pip-библиотеки
+            psu = OwonPSU(port)
 
-        ident = self.psu.identify() or f"Подключено к {port}"
-        self.status_label.config(text=ident, fg=self.fg)
-        self.btn_connect.config(text="Отключить")
+            # 2) обязательно открываем порт!
+            psu.open()
+
+            # 3) читаем уставки (если возможно)
+            try:
+                u_set = psu.get_voltage()
+                i_set = psu.get_current()
+                self.u_set_label_var.set(f"{u_set:.3f} В")
+                self.i_set_label_var.set(f"{i_set:.3f} А")
+            except:
+                self.u_set_label_var.set("—")
+                self.i_set_label_var.set("—")
+
+            # 4) сохраняем объект
+            self.psu = psu
+            self.connected = True
+
+            # 5) UI
+            self.btn_connect.config(text="Отключить")
+            self.btn_output.config(state="normal")
+
+            # 6) статус
+            self._set_status(f"ЛБП подключён ({port})", "green")
+
+            # 7) запуск опроса
+            self._schedule_measure()
+
+        except Exception as e:
+            self.connected = False
+            self.psu = None
+            self._set_status(f"Ошибка подключения: {e}", "red")
+
 
     def _reset_com(self):
-        if not self.psu.port:
-            self.status_label.config(text="Reset: порт не выбран", fg="#ff5555")
+        """Закрыть и снова открыть COM-порт ЛБП."""
+        if not self.psu or not self.connected:
+            self._set_status("Reset COM: ЛБП не подключён", "red")
             return
-        ok = self.psu.reset_com()
-        self.status_label.config(
-            text="Сброс успешен" if ok else "Ошибка reset COM",
-            fg=self.fg if ok else "#ff5555"
-        )
 
-    # ============================================================
-    #   PSU POLLING
-    # ============================================================
+        port = self.port_var.get().strip()
+        if not port:
+            self._set_status("Reset COM: порт не выбран", "red")
+            return
 
-    def _poll_psu(self):
-        if self.psu.connected:
-            u, i = self.psu.read_measurements()
-            if u is not None:
-                self.u_meas_var.set(f"{u:6.3f} V")
-            else:
-                self.u_meas_var.set("--.-- V")
+        # остановить опрос
+        if self._measure_job:
+            self.after_cancel(self._measure_job)
+            self._measure_job = None
 
-            if i is not None:
-                self.i_meas_var.set(f"{i:6.3f} A")
-            else:
-                self.i_meas_var.set("--.-- A")
+        # закрыть соединение
+        try:
+            self.psu.close()
+        except:
+            pass
 
-        self.after(self.POLL_INTERVAL_MS, self._poll_psu)
+        try:
+            # пересоздать объект и открыть порт
+            psu = OwonPSU(port)
+            psu.open()
 
-    # ============================================================
-    #   SETTINGS / OUTPUT
-    # ============================================================
+            self.psu = psu
+            self.connected = True
 
+            self._set_status(f"Reset COM успешен ({port})", "green")
+
+            # перезапустить опрос
+            self._schedule_measure()
+
+        except Exception as e:
+            self.psu = None
+            self.connected = False
+            self._set_status(f"Ошибка Reset COM: {e}", "red")
+
+    # ------------------------------------------------------------------
+    # Опрос измерений
+    # ------------------------------------------------------------------
+    def _schedule_measure(self):
+        if not self.connected or not self.psu:
+            return
+
+        try:
+            u = self.psu.measure_voltage()
+            i = self.psu.measure_current()
+            self.u_meas_var.set(f"{u:.3f} V")
+            self.i_meas_var.set(f"{i:.3f} A")
+        except Exception as e:
+            self._set_status(f"Ошибка измерения ЛБП: {e}", "red")
+
+        self._measure_job = self.after(self.POLL_INTERVAL_MS, self._schedule_measure)
+
+    # ------------------------------------------------------------------
+    # Уставки и выход
+    # ------------------------------------------------------------------
     def _apply_setpoints(self):
+        if not self.connected or not self.psu:
+            self._set_status("Сначала подключите ЛБП", "red")
+            return
+
         try:
             u = float(self.u_set_var.get().replace(",", "."))
             i = float(self.i_set_var.get().replace(",", "."))
         except ValueError:
-            self.status_label.config(text="Неверный формат", fg="#ff5555")
+            self._set_status("Некорректные значения U/I", "red")
             return
 
-        if not self.psu.connected:
-            self.status_label.config(text="ЛБП не подключен", fg="#ff5555")
-            return
-
-        self.psu.set_voltage_current(u, i)
-        self.status_label.config(text="Установлено", fg=self.fg)
+        try:
+            self.psu.set_voltage(u)
+            self.psu.set_current(i)
+            self.u_set_label_var.set(f"{u:.3f} В")
+            self.i_set_label_var.set(f"{i:.3f} А")
+            self._set_status(f"Уставки: U={u:.3f} В, I={i:.3f} А", "green")
+        except Exception as e:
+            self._set_status(f"Ошибка задания уставок: {e}", "red")
 
     def _toggle_output(self):
-        if not self.psu.connected:
-            self.status_label.config(text="ЛБП не подключен", fg="#ff5555")
+        if not self.connected or not self.psu:
+            self._set_status("Сначала подключите ЛБП", "red")
             return
 
-        new_state = not self.psu.device.output_state
-        self.psu.set_output(new_state)
-        self.btn_output.config(text=f"Выход: {'ON' if new_state else 'OFF'}")
-
-    # ============================================================
-    #   PRESETS
-    # ============================================================
-
-    def _load_presets(self):
         try:
-            if os.path.exists(self.presets_path):
-                with open(self.presets_path, "r", encoding="utf-8") as f:
-                    presets = json.load(f)
-                    if isinstance(presets, dict):
-                        self.presets = presets
-                        return
-        except Exception:
-            pass
+            new_state = not self.current_output_state
+            self.psu.set_output(new_state)
+            self.current_output_state = new_state
+            self.btn_output.config(text=f"Выход: {'ON' if new_state else 'OFF'}")
+            self._set_status(
+                f"Выход ЛБП: {'ВКЛ' if new_state else 'ВЫКЛ'}",
+                "green" if new_state else "yellow",
+            )
+        except Exception as e:
+            self._set_status(f"Ошибка переключения выхода: {e}", "red")
 
-        self.presets = DEFAULT_PRESETS.copy()
-        self._save_presets()
+    # ------------------------------------------------------------------
+    # Пресеты
+    # ------------------------------------------------------------------
+    def _load_presets(self):
+        """Загрузка пресетов из файла JSON."""
+        os.makedirs(os.path.dirname(self.presets_path), exist_ok=True)
+
+        if not os.path.exists(self.presets_path):
+            # создаём с дефолтами
+            self.presets = DEFAULT_PRESETS.copy()
+            self._save_presets()
+            return
+
+        try:
+            with open(self.presets_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # ожидание формата {name: {"U": float, "I": float}}
+                if isinstance(data, dict):
+                    self.presets = data
+                else:
+                    self.presets = DEFAULT_PRESETS.copy()
+        except Exception:
+            self.presets = DEFAULT_PRESETS.copy()
+            self._save_presets()
 
     def _save_presets(self):
-        os.makedirs(os.path.dirname(self.presets_path), exist_ok=True)
-        with open(self.presets_path, "w", encoding="utf-8") as f:
-            json.dump(self.presets, f, indent=2, ensure_ascii=False)
+        """Сохранение пресетов в JSON."""
+        try:
+            with open(self.presets_path, "w", encoding="utf-8") as f:
+                json.dump(self.presets, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print("Ошибка сохранения пресетов ЛБП:", e)
 
-    def _rebuild_presets(self):
-        for w in self.container_presets.winfo_children():
-            w.destroy()
+    def _refresh_presets_ui(self):
+        """Перерисовка кнопок пресетов."""
+        for btn in self.preset_buttons:
+            btn.destroy()
+        self.preset_buttons.clear()
 
         for name, cfg in self.presets.items():
-            u, i = cfg["U"], cfg["I"]
-            btn = Button(
-                self.container_presets,
-                text=f"{name}\nU={u}В  I={i}A",
-                justify="left", anchor="w",
-                bg="#303134", fg=self.fg,
-                wraplength=200,
-                command=lambda u=u, i=i: self._apply_preset(u, i),
+            u = cfg.get("U", 0.0)
+            i = cfg.get("I", 0.0)
+
+            def make_cmd(U=u, I=i):
+                self.u_set_var.set(str(U))
+                self.i_set_var.set(str(I))
+                if self.connected and self.psu:
+                    self._apply_setpoints()
+
+            text = f"{name}\nU={u} В; I={i} А"
+            b = Button(
+                self.presets_container,
+                text=text,
+                justify="left",
+                anchor="w",
+                bg="#303134",
+                fg=self.fg,
+                activebackground="#3c4043",
+                activeforeground=self.fg,
+                command=make_cmd,
             )
-            btn.pack(fill=X, pady=2)
-
-    def _apply_preset(self, u, i):
-        self.u_set_var.set(u)
-        self.i_set_var.set(i)
-        if self.psu.connected:
-            self._apply_setpoints()
-
-    # ============================================================
-    #   PRESET EDITOR
-    # ============================================================
+            b.pack(fill=X, pady=2)
+            self.preset_buttons.append(b)
 
     def _open_presets_editor(self):
         PresetsEditor(self, self.presets, self.presets_path, self._on_presets_changed)
 
+    def _on_presets_changed(self, new_presets: dict[str, dict[str, float]]):
+        self.presets = new_presets
+        self._save_presets()
+        self._refresh_presets_ui()
+
+
+# ======================================================================
+# Окно редактора пресетов
+# ======================================================================
 
 class PresetsEditor(Toplevel):
-    def __init__(self, master: PSUControlPanel, presets, path, on_change):
+    def __init__(self, master: PSUControlPanel,
+                 presets: dict[str, dict[str, float]],
+                 path: str,
+                 on_change):
         super().__init__(master)
-        self.master = master
-        self.bg = master.bg
-        self.fg = master.fg
+
+        self.master_panel = master
         self.presets = dict(presets)
         self.path = path
         self.on_change = on_change
+
+        self.bg = master.bg
+        self.fg = master.fg
+
+        self.title("Редактирование пресетов ЛБП")
+        self.configure(bg=self.bg)
 
         self.name_var = StringVar()
         self.u_var = StringVar()
         self.i_var = StringVar()
 
-        self._build_ui()
-        self._reload_list()
-        self.grab_set()
+        # UI
+        main = Frame(self, bg=self.bg)
+        main.pack(fill=BOTH, expand=True, padx=8, pady=8)
 
-    def _build_ui(self):
-        self.configure(bg=self.bg)
-        self.title("Редактирование пресетов")
+        # Список пресетов
+        left = Frame(main, bg=self.bg)
+        left.pack(side=LEFT, fill=Y)
 
-        top = Frame(self, bg=self.bg)
-        top.pack(fill=BOTH, expand=True, padx=10, pady=10)
-
-        self.listbox = Listbox(top, bg="#303134", fg=self.fg, selectmode=SINGLE)
-        self.listbox.pack(side=LEFT, fill=Y)
+        self.listbox = Listbox(
+            left,
+            bg="#303134",
+            fg=self.fg,
+            selectmode=SINGLE,
+            activestyle="dotbox",
+        )
+        self.listbox.pack(fill=Y, expand=True)
         self.listbox.bind("<<ListboxSelect>>", self._on_select)
 
-        right = Frame(top, bg=self.bg); right.pack(side=RIGHT, fill=BOTH, expand=True)
+        # Правая панель
+        right = Frame(main, bg=self.bg)
+        right.pack(side=RIGHT, fill=BOTH, expand=True, padx=8)
 
-        row1 = Frame(right, bg=self.bg); row1.pack(fill=X)
+        # Имя
+        row1 = Frame(right, bg=self.bg)
+        row1.pack(fill=X, pady=2)
         Label(row1, text="Имя:", bg=self.bg, fg=self.fg).pack(side=LEFT)
-        Entry(row1, textvariable=self.name_var, bg="#303134", fg=self.fg,
-              insertbackground=self.fg).pack(side=LEFT, fill=X, expand=True)
+        Entry(
+            row1,
+            textvariable=self.name_var,
+            bg="#303134",
+            fg=self.fg,
+            insertbackground=self.fg,
+        ).pack(side=LEFT, fill=X, expand=True)
 
-        row2 = Frame(right, bg=self.bg); row2.pack(fill=X)
-        Label(row2, text="U:", bg=self.bg, fg=self.fg).pack(side=LEFT)
-        Entry(row2, textvariable=self.u_var, width=8,
-              bg="#303134", fg=self.fg).pack(side=LEFT)
+        # U
+        row2 = Frame(right, bg=self.bg)
+        row2.pack(fill=X, pady=2)
+        Label(row2, text="U (В):", bg=self.bg, fg=self.fg).pack(side=LEFT)
+        Entry(
+            row2,
+            textvariable=self.u_var,
+            bg="#303134",
+            fg=self.fg,
+            insertbackground=self.fg,
+            width=10,
+        ).pack(side=LEFT)
 
-        row3 = Frame(right, bg=self.bg); row3.pack(fill=X)
-        Label(row3, text="I:", bg=self.bg, fg=self.fg).pack(side=LEFT)
-        Entry(row3, textvariable=self.i_var, width=8,
-              bg="#303134", fg=self.fg).pack(side=LEFT)
+        # I
+        row3 = Frame(right, bg=self.bg)
+        row3.pack(fill=X, pady=2)
+        Label(row3, text="I (А):", bg=self.bg, fg=self.fg).pack(side=LEFT)
+        Entry(
+            row3,
+            textvariable=self.i_var,
+            bg="#303134",
+            fg=self.fg,
+            insertbackground=self.fg,
+            width=10,
+        ).pack(side=LEFT)
 
-        Button(right, text="Добавить/обновить", command=self._apply,
-               bg="#303134", fg=self.fg).pack(fill=X, pady=4)
-        Button(right, text="Удалить", command=self._delete,
-               bg="#303134", fg=self.fg).pack(fill=X, pady=4)
-        Button(right, text="Закрыть", command=self._close,
-               bg="#303134", fg=self.fg).pack(fill=X, pady=4)
+        # Кнопки
+        btn_add = Button(
+            right,
+            text="Добавить/Обновить",
+            command=self._apply,
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
+        )
+        btn_add.pack(fill=X, pady=2)
+
+        btn_del = Button(
+            right,
+            text="Удалить",
+            command=self._delete,
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
+        )
+        btn_del.pack(fill=X, pady=2)
+
+        btn_close = Button(
+            right,
+            text="Закрыть",
+            command=self._close,
+            bg="#303134",
+            fg=self.fg,
+            activebackground="#3c4043",
+            activeforeground=self.fg,
+        )
+        btn_close.pack(fill=X, pady=2)
+
+        self._reload_list()
+        self.grab_set()
+        self.focus_set()
 
     def _reload_list(self):
         self.listbox.delete(0, END)
-        for key in self.presets.keys():
-            self.listbox.insert(END, key)
+        for name in self.presets.keys():
+            self.listbox.insert(END, name)
 
-    def _on_select(self, *_):
+    def _on_select(self, event=None):
         sel = self.listbox.curselection()
         if not sel:
             return
-        name = self.listbox.get(sel[0])
-        u = self.presets[name]["U"]
-        i = self.presets[name]["I"]
+        idx = sel[0]
+        name = self.listbox.get(idx)
+        cfg = self.presets.get(name, {"U": 0.0, "I": 0.0})
+
         self.name_var.set(name)
-        self.u_var.set(str(u))
-        self.i_var.set(str(i))
+        self.u_var.set(str(cfg.get("U", 0.0)))
+        self.i_var.set(str(cfg.get("I", 0.0)))
 
     def _apply(self):
+        name = self.name_var.get().strip()
+        if not name:
+            return
         try:
-            name = self.name_var.get().strip()
-            if not name:
-                return
             u = float(self.u_var.get().replace(",", "."))
             i = float(self.i_var.get().replace(",", "."))
-            self.presets[name] = {"U": u, "I": i}
-            self._reload_list()
-        except:
-            pass
+        except ValueError:
+            return
+
+        self.presets[name] = {"U": u, "I": i}
+        self._reload_list()
 
     def _delete(self):
         sel = self.listbox.curselection()
         if not sel:
             return
-        key = self.listbox.get(sel[0])
-        if key in self.presets:
-            del self.presets[key]
+        idx = sel[0]
+        name = self.listbox.get(idx)
+        if name in self.presets:
+            del self.presets[name]
         self._reload_list()
 
     def _close(self):
+        # перед закрытием — уведомляем панель ЛБП
         self.on_change(self.presets)
         self.destroy()

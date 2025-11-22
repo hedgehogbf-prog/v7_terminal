@@ -1,115 +1,128 @@
 # psu/owon.py
 """
-OWON SPE6103 — драйвер управления через библиотеку owon-psu.
+Обёртка над библиотекой owon_psu (pip install owon-psu).
 
-Требуется:
-    pip install owon-psu
+Цель:
+- Упростить работу с OwonPSU из GUI.
+- При открытии:
+    - открыть порт
+    - включить REMOTE режим (SYST:REM)
+    - включить KeyLock
+    - гарантированно выключить выход (set_output(False))
 
-Документация:
-    https://github.com/robbederks/owon-psu-control
+Использование в коде:
+    from psu.owon import OwonPSU
+
+    psu = OwonPSU("COM3")
+    psu.open()
+    psu.set_voltage(5.0)
+    psu.set_current(1.0)
+    psu.set_output(True)
 """
 
-from owon_psu import OwonSPE6103
+from __future__ import annotations
+
+from owon_psu import OwonPSU as _LibOwonPSU
 
 
 class OwonPSU:
-    """
-    Обёртка вокруг OwonSPE6103, чтобы интерфейс совпадал с тем,
-    что требуется в программе (connect/read/set/reset).
-    """
+    """Высокоуровневая обёртка над owon_psu.OwonPSU."""
 
-    def __init__(self, baudrate: int = 9600, timeout: float = 0.2):
-        self.baudrate = baudrate
-        self.timeout = timeout
-        self.device: OwonSPE6103 | None = None
-        self.connected = False
-        self.port = None
+    def __init__(self, port: str):
+        self._port = port
+        self._dev: _LibOwonPSU | None = None
+        self._opened = False
 
-    # --------------------------------------------------------
-    #  Подключение и отключение
-    # --------------------------------------------------------
+    # ---------------- Базовые операции подключения ----------------
+    @property
+    def port(self) -> str:
+        return self._port
 
-    def connect(self, port: str) -> bool:
+    def open(self):
+        """Открыть соединение с ЛБП, включить REMOTE и KeyLock."""
+        if self._opened and self._dev is not None:
+            return
+
+        dev = _LibOwonPSU(self._port)
+        dev.open()
+
+        # Попробуем включить REMOTE режим (игнорируем ошибку, если команда не поддерживается)
         try:
-            self.device = OwonSPE6103(port=port, baudrate=self.baudrate, timeout=self.timeout)
-            self.port = port
-            self.connected = True
-            return True
+            dev._cmd("SYST:REM")
         except Exception:
-            self.device = None
-            self.connected = False
-            return False
+            pass
 
-    def disconnect(self):
-        if self.device:
+        # Включим KeyLock, чтобы случайно не нажать что-то на панели
+        try:
+            dev.set_keylock(True)
+        except Exception:
+            pass
+
+        # На всякий случай выключим выход на старте
+        try:
+            dev.set_output(False)
+        except Exception:
+            pass
+
+        self._dev = dev
+        self._opened = True
+
+    def close(self):
+        """Закрыть соединение."""
+        if self._dev is not None:
             try:
-                self.device.serial.close()
+                self._dev.close()
             except Exception:
                 pass
-        self.device = None
-        self.connected = False
-        self.port = None
+        self._dev = None
+        self._opened = False
 
-    # --------------------------------------------------------
-    #  Идентификация
-    # --------------------------------------------------------
+    def is_open(self) -> bool:
+        return self._opened and self._dev is not None
 
-    def identify(self) -> str | None:
-        """SPE6103 не всегда поддерживает *IDN?, но библиотека возвращает model string."""
-        if not self.connected or not self.device:
-            return None
-        try:
-            return self.device.get_model()
-        except Exception:
-            return None
+    # ---------------- Методы, повторяющие API библиотеки ----------------
+    def read_identity(self) -> str:
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        return self._dev.read_identity()
 
-    # --------------------------------------------------------
-    #  Управление выходом и уставками
-    # --------------------------------------------------------
+    def measure_voltage(self) -> float:
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        return self._dev.measure_voltage()
 
-    def set_output(self, on: bool):
-        if not self.connected or not self.device:
-            return False
-        try:
-            self.device.output(on)
-            return True
-        except Exception:
-            return False
+    def measure_current(self) -> float:
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        return self._dev.measure_current()
 
-    def set_voltage_current(self, u: float, i: float):
-        if not self.connected or not self.device:
-            return False
-        try:
-            self.device.set_voltage(u)
-            self.device.set_current(i)
-            return True
-        except Exception:
-            return False
+    def get_voltage(self) -> float:
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        return self._dev.get_voltage()
 
-    # --------------------------------------------------------
-    #  Измерения
-    # --------------------------------------------------------
+    def get_current(self) -> float:
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        return self._dev.get_current()
 
-    def read_measurements(self):
-        """
-        Возвращает (U, I).
-        Если не удаётся считать — возвращает (None, None).
-        """
-        if not self.connected or not self.device:
-            return None, None
-        try:
-            v = self.device.get_voltage()
-            a = self.device.get_current()
-            return v, a
-        except Exception:
-            return None, None
+    def set_voltage(self, value: float):
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        self._dev.set_voltage(value)
 
-    # --------------------------------------------------------
-    #  Reset COM
-    # --------------------------------------------------------
+    def set_current(self, value: float):
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        self._dev.set_current(value)
 
-    def reset_com(self):
-        if not self.port:
-            return False
-        self.disconnect()
-        return self.connect(self.port)
+    def set_output(self, state: bool):
+        """Включить/выключить выход."""
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        self._dev.set_output(bool(state))
+
+    def get_output(self) -> bool:
+        if not self.is_open():
+            raise RuntimeError("PSU not open")
+        return bool(self._dev.get_output())
