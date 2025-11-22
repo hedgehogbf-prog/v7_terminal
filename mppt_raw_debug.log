@@ -1,0 +1,1092 @@
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]'
+
+--- NEW CHUNK ---
+'\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t13\tmA\r\n I_ch1\x1b[0m\t14\tmA\r\n I_ch2\x1b'
+
+--- NEW CHUNK ---
+'[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mV'
+
+--- NEW CHUNK ---
+'oltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n '
+
+--- NEW CHUNK ---
+'U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t13\tmA\r\n I_ch1\x1b[0m\t14\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U'
+
+--- NEW CHUNK ---
+'_bat\t9007\tmV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA'
+
+--- NEW CHUNK ---
+'\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]'
+
+--- NEW CHUNK ---
+'\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0'
+
+--- NEW CHUNK ---
+'m\t18\tmA\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t'
+
+--- NEW CHUNK ---
+'[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t90'
+
+--- NEW CHUNK ---
+'67\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_c'
+
+--- NEW CHUNK ---
+'h2\x1b[0m\t14\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n '
+
+--- NEW CHUNK ---
+'U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b'
+
+--- NEW CHUNK ---
+'[0m\t14\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mUART\t\t[b]\r\n\x1b[33mV'
+
+--- NEW CHUNK ---
+'oltage\t\t[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t14\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b'
+
+--- NEW CHUNK ---
+'[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U'
+
+--- NEW CHUNK ---
+'_bat\t8992\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t19\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]'
+
+--- NEW CHUNK ---
+'\x1b[0m\r\n U_bat\t8992\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t19\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311'
+
+--- NEW CHUNK ---
+'-20383346\r\n\x1b[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t8992\tmV\r\n U_src\t9077\tm'
+
+--- NEW CHUNK ---
+'V\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t19\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUAR'
+
+--- NEW CHUNK ---
+'T\t\t[b]\r\n\x1b[33mVoltage\t'
+
+--- NEW CHUNK ---
+'\t[-]\x1b[0m\r\n U_bat\t8998\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t11\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7'
+
+--- NEW CHUNK ---
+'-c-32305311'
+
+--- NEW CHUNK ---
+'-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t8998\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t11\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311'
+
+--- NEW CHUNK ---
+'-20383346\r\n\x1b[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t8998\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t11\tmA\r\n I_ch2\x1b'
+
+--- NEW CHUNK ---
+'[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-203833'
+
+--- NEW CHUNK ---
+'46\r\n\x1b[33mUAR'
+
+--- NEW CHUNK ---
+'T\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t9007\tmV\r\n U_src\t9077\tm'
+
+--- NEW CHUNK ---
+'V\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t13\t'
+
+--- NEW CHUNK ---
+'mA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mV'
+
+--- NEW CHUNK ---
+'oltage\t\t[-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t9007\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[3'
+
+--- NEW CHUNK ---
+'6m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9067\tmV\r\n\x1b[33'
+
+--- NEW CHUNK ---
+'mCurrent\t\t[-]\x1b[0m\r\n I_c'
+
+--- NEW CHUNK ---
+'rg\x1b[0m\t19\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM3'
+
+--- NEW CHUNK ---
+'2f030x\t\x1b[0m7-c-32305311'
+
+--- NEW CHUNK ---
+'-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t19\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9067\tm'
+
+--- NEW CHUNK ---
+'V\r\n\x1b[33mCur'
+
+--- NEW CHUNK ---
+'rent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t19\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t'
+
+--- NEW CHUNK ---
+'[-]\x1b[0m\r\n U'
+
+--- NEW CHUNK ---
+'_bat\t9007\tmV\r\n U_src\t9062\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t14\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n'
+
+--- NEW CHUNK ---
+'\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9062\tm'
+
+--- NEW CHUNK ---
+'V\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t14\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]'
+
+--- NEW CHUNK ---
+'\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9062\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t14\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9013\tmV\r\n U_src\t90'
+
+--- NEW CHUNK ---
+'67\tmV\r\n\x1b[33mCurrent\t\t[-'
+
+--- NEW CHUNK ---
+']\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_'
+
+--- NEW CHUNK ---
+'ch2\x1b[0m\t16\tm'
+
+--- NEW CHUNK ---
+'A\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t9013\tmV\r\n U_src\t9067\tm'
+
+--- NEW CHUNK ---
+'V\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t9013\tmV\r\n '
+
+--- NEW CHUNK ---
+'U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I'
+
+--- NEW CHUNK ---
+'_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b['
+
+--- NEW CHUNK ---
+'?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t9082\tmV\r\n\x1b[33m'
+
+--- NEW CHUNK ---
+'Current\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t12\tmA'
+
+--- NEW CHUNK ---
+'\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t9082\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t12\tmA\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sen'
+
+--- NEW CHUNK ---
+'s\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mV'
+
+--- NEW CHUNK ---
+'oltage\t\t[-]'
+
+--- NEW CHUNK ---
+'\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t9082\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b['
+
+--- NEW CHUNK ---
+'0m\t12\tmA\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger'
+
+--- NEW CHUNK ---
+'\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUAR'
+
+--- NEW CHUNK ---
+'T\t\t[b]\r\n\x1b[33mVoltage\t'
+
+--- NEW CHUNK ---
+'\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9056\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_cr'
+
+--- NEW CHUNK ---
+'g\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t19\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mV'
+
+--- NEW CHUNK ---
+'oltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9056\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I'
+
+--- NEW CHUNK ---
+'_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t19\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mV'
+
+--- NEW CHUNK ---
+'oltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9056\tm'
+
+--- NEW CHUNK ---
+'V\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t19\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-2038334'
+
+--- NEW CHUNK ---
+'6\r\n\x1b[33mUAR'
+
+--- NEW CHUNK ---
+'T\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9010\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-'
+
+--- NEW CHUNK ---
+']\x1b[0m\r\n I_crg\x1b[0m\t20\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM3'
+
+--- NEW CHUNK ---
+'2f030x\t\x1b[0m'
+
+--- NEW CHUNK ---
+'7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9010\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t20\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9010\tmV\r\n '
+
+--- NEW CHUNK ---
+'U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0'
+
+--- NEW CHUNK ---
+'m\r\n I_crg\x1b[0m\t20\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U'
+
+--- NEW CHUNK ---
+'_bat\t9010\tmV\r\n U_src\t90'
+
+--- NEW CHUNK ---
+'61\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_'
+
+--- NEW CHUNK ---
+'ch2\x1b[0m\t13\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t'
+
+--- NEW CHUNK ---
+'\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t9010\tmV\r\n U_src\t9061\tm'
+
+--- NEW CHUNK ---
+'V\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t13\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b['
+
+--- NEW CHUNK ---
+'?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m'
+
+--- NEW CHUNK ---
+'7-c-32305311'
+
+--- NEW CHUNK ---
+'-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9010\tmV\r\n U_src\t9061\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t15\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t13\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t'
+
+--- NEW CHUNK ---
+'\t[-]\x1b[0m\r\n U_bat\t9004\tm'
+
+--- NEW CHUNK ---
+'V\r\n U_src\t9041\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m'
+
+--- NEW CHUNK ---
+'\t19\tmA\r\n I_ch2\x1b[0m\t10\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM3'
+
+--- NEW CHUNK ---
+'2f030x\t\x1b[0m'
+
+--- NEW CHUNK ---
+'7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n '
+
+--- NEW CHUNK ---
+'U_src\t9041\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t10\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mV'
+
+--- NEW CHUNK ---
+'oltage\t\t[-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t9004\tmV\r\n U_src\t9041\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b['
+
+--- NEW CHUNK ---
+'0m\t16\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t10\tmA\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b['
+
+--- NEW CHUNK ---
+'33mVoltage\t\t[-]\x1b[0m\r\n U'
+
+--- NEW CHUNK ---
+'_bat\t8998\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t14\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n'
+
+--- NEW CHUNK ---
+'\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t8998\tmV\r\n '
+
+--- NEW CHUNK ---
+'U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t14\tmA\r\n I'
+
+--- NEW CHUNK ---
+'_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]'
+
+--- NEW CHUNK ---
+'\x1b[0m\r\n U_bat\t8998\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t14\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m '
+
+--- NEW CHUNK ---
+'STM32f030x\t\x1b'
+
+--- NEW CHUNK ---
+'[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311'
+
+--- NEW CHUNK ---
+'-20383346\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b'
+
+--- NEW CHUNK ---
+'[33mUART\t\t['
+
+--- NEW CHUNK ---
+'b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]'
+
+--- NEW CHUNK ---
+'\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b['
+
+--- NEW CHUNK ---
+'?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-3230'
+
+--- NEW CHUNK ---
+'5311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b['
+
+--- NEW CHUNK ---
+'33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t8998\tmV\r\n U_src\t9062\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t13\tmA\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t17\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t'
+
+--- NEW CHUNK ---
+'\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t8998\tmV\r\n U_src\t9062\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t13\tmA\r\n I'
+
+--- NEW CHUNK ---
+'_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t17\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[b]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t8998\tmV\r\n '
+
+--- NEW CHUNK ---
+'U_src\t9062\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0'
+
+--- NEW CHUNK ---
+'m\r\n I_crg\x1b[0m\t13\tmA'
+
+--- NEW CHUNK ---
+'\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b'
+
+--- NEW CHUNK ---
+'[0m\t17\tmA\r\n\x1b[33mCharger'
+
+--- NEW CHUNK ---
+'\t\t[-]\r\n\x1b[33mM_sens\t\t[-]'
+
+--- NEW CHUNK ---
+'\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[3'
+
+--- NEW CHUNK ---
+'6m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t'
+
+--- NEW CHUNK ---
+'\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\t'
+
+--- NEW CHUNK ---
+'mV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t17\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r'
+
+--- NEW CHUNK ---
+'\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33'
+
+--- NEW CHUNK ---
+'mVoltage\t\t['
+
+--- NEW CHUNK ---
+'-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b'
+
+--- NEW CHUNK ---
+'[0m\t17\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H'
+
+--- NEW CHUNK ---
+'\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-3230531'
+
+--- NEW CHUNK ---
+'1-20383346\r\n\x1b[33mUART\t\t'
+
+--- NEW CHUNK ---
+'[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9067\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t17\tmA\r\n I_ch1\x1b[0m\t18\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9004\t'
+
+--- NEW CHUNK ---
+'mV\r\n U_src\t9036\tmV\r\n\x1b[3'
+
+--- NEW CHUNK ---
+'3mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-3230531'
+
+--- NEW CHUNK ---
+'1-20383346\r\n\x1b[33mUART\t\t'
+
+--- NEW CHUNK ---
+'[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t9036\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t'
+
+--- NEW CHUNK ---
+'[fC]\r\n\x1b[33mVoltage\t\t['
+
+--- NEW CHUNK ---
+'-]\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t9036\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t16\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n'
+
+--- NEW CHUNK ---
+'\x1b[33mVoltage\t\t[-]\x1b[0m\r\n'
+
+--- NEW CHUNK ---
+' U_bat\t9010\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t13\tmA\r\n I_ch1\x1b[0m\t14\tmA\r\n I_ch2\x1b[0m\t17\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b['
+
+--- NEW CHUNK ---
+'1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m'
+
+--- NEW CHUNK ---
+'7-c-32305311-20383346\r\n'
+
+--- NEW CHUNK ---
+'\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9010\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t13\tmA\r\n I_ch1\x1b[0m\t14\tmA\r\n I_ch2\x1b[0m\t17\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_s'
+
+--- NEW CHUNK ---
+'ens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM'
+
+--- NEW CHUNK ---
+'32f030x\t\x1b[0m7-c-3230531'
+
+--- NEW CHUNK ---
+'1-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9010\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t13\tmA\r\n I_ch1\x1b[0m\t14\tmA\r\n I_ch2\x1b[0m\t17\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage'
+
+--- NEW CHUNK ---
+'\t\t[-]\x1b[0m\r\n'
+
+--- NEW CHUNK ---
+' U_bat\t9004\tmV\r\n U_src\t9051\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\t'
+
+--- NEW CHUNK ---
+'mA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m'
+
+--- NEW CHUNK ---
+'7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33'
+
+--- NEW CHUNK ---
+'mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9004\tmV\r\n U_src\t9051\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t19\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t['
+
+--- NEW CHUNK ---
+'-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33'
+
+--- NEW CHUNK ---
+'mVoltage\t\t[-]\x1b[0m\r\n U_b'
+
+--- NEW CHUNK ---
+'at\t9004\tmV\r\n U_src\t9051\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b'
+
+--- NEW CHUNK ---
+'[0m\t16\tmA\r\n I_ch1\x1b[0m\t1'
+
+--- NEW CHUNK ---
+'9\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x'
+
+--- NEW CHUNK ---
+'\t\x1b[0m7-c-323'
+
+--- NEW CHUNK ---
+'05311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t12\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r'
+
+--- NEW CHUNK ---
+'\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg'
+
+--- NEW CHUNK ---
+'\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t12\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b'
+
+--- NEW CHUNK ---
+'[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t'
+
+--- NEW CHUNK ---
+'[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg'
+
+--- NEW CHUNK ---
+'\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t13\tmA\r\n I_ch2\x1b[0m\t12\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltag'
+
+--- NEW CHUNK ---
+'e\t\t[-]\x1b[0m\r\n U_bat\t9001\t'
+
+--- NEW CHUNK ---
+'mV\r\n U_src\t9057\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t20\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b['
+
+--- NEW CHUNK ---
+'1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-3230531'
+
+--- NEW CHUNK ---
+'1-20383346\r\n\x1b[33mUART\t\t'
+
+--- NEW CHUNK ---
+'[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9057\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg'
+
+--- NEW CHUNK ---
+'\x1b[0m\t20\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b'
+
+--- NEW CHUNK ---
+'[2J\x1b[36m STM'
+
+--- NEW CHUNK ---
+'32f030x\t\x1b[0m7-c-3230531'
+
+--- NEW CHUNK ---
+'1-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9057\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t20\tmA\r\n I_ch1\x1b[0m\t17\tmA\r\n I_ch2\x1b[0m\t15\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t'
+
+--- NEW CHUNK ---
+'9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\t'
+
+--- NEW CHUNK ---
+'mA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_b'
+
+--- NEW CHUNK ---
+'at\t9007\tmV\r\n U_src\t9072'
+
+--- NEW CHUNK ---
+'\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t16\tmA\r'
+
+--- NEW CHUNK ---
+'\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t['
+
+--- NEW CHUNK ---
+'-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg'
+
+--- NEW CHUNK ---
+'\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t16\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007'
+
+--- NEW CHUNK ---
+'\tmV\r\n U_src\t9077\tmV\r\n\x1b['
+
+--- NEW CHUNK ---
+'33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n '
+
+--- NEW CHUNK ---
+'I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sen'
+
+--- NEW CHUNK ---
+'s\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9007\tmV\r\n U_src\t9077'
+
+--- NEW CHUNK ---
+'\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n'
+
+--- NEW CHUNK ---
+' I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t['
+
+--- NEW CHUNK ---
+'-]\x1b[0m\r\n U_bat'
+
+--- NEW CHUNK ---
+'\t9007\tmV\r\n U_src\t9077\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch'
+
+--- NEW CHUNK ---
+'2\x1b[0m\t18\tmA\r\n\x1b[33mCharg'
+
+--- NEW CHUNK ---
+'er\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H'
+
+--- NEW CHUNK ---
+'\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001'
+
+--- NEW CHUNK ---
+'\tmV\r\n U_src\t9072\tmV\r\n\x1b['
+
+--- NEW CHUNK ---
+'33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b['
+
+--- NEW CHUNK ---
+'0m\t15\tmA\r\n I_ch2\x1b[0m\t18'
+
+--- NEW CHUNK ---
+'\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33'
+
+--- NEW CHUNK ---
+'mVoltage\t\t[-]\x1b[0m\r\n U_b'
+
+--- NEW CHUNK ---
+'at\t9001\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b'
+
+--- NEW CHUNK ---
+'[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-3230531'
+
+--- NEW CHUNK ---
+'1-20383346\r\n\x1b[33mUART\t\t'
+
+--- NEW CHUNK ---
+'[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9072\tmV\r\n\x1b[33mC'
+
+--- NEW CHUNK ---
+'urrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t18\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t18\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t'
+
+--- NEW CHUNK ---
+'\x1b[0m7-c-323'
+
+--- NEW CHUNK ---
+'05311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t'
+
+--- NEW CHUNK ---
+'9082\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t17\tmA\r\n\x1b[33mCharger\t\t[-]\r\n\x1b[33mM_sens\t\t[-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+'\x1b[2J\x1b[36m STM32f030x\t\x1b[0m7-c-32305311-20383346\r\n\x1b[33mUART\t\t[fC]\r\n\x1b[33mVoltage\t\t[-]\x1b[0m\r\n U_bat\t9001\tmV\r\n U_src\t9082\tmV\r\n\x1b[33mCurrent\t\t[-]\x1b[0m\r\n I_crg\x1b[0m\t16\tmA\r\n I_ch1\x1b[0m\t15\tmA\r\n I_ch2\x1b[0m\t17\tmA\r\n\x1b[33mCharg'
+
+--- NEW CHUNK ---
+'er\t\t[-]\r\n\x1b[33mM_sens\t\t['
+
+--- NEW CHUNK ---
+'-]\r\n\x1b[33mL_sens\t\t[-]\r\n\x1b'
+
+--- NEW CHUNK ---
+'[36m\r\n\x1b[1;1H\x1b[?25l'
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''
+
+--- NEW CHUNK ---
+''

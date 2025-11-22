@@ -1,12 +1,10 @@
-# mppt/gui.py — версия с PyteTerminal + CanvasTerminal
-# -----------------------------------------------------------
-# ✔ pyte эмулирует настоящий терминал (ANSI, курсор, clear)
-# ✔ CanvasTerminal рисует сетку 64x18 без мерцания
-# ✔ ОБНОВЛЕНИЯ GUI идут только из main-thread через .after()
+# mppt/gui.py — финальная версия с маскированием UID в pyte screen
 # -----------------------------------------------------------
 
 import threading
 import time
+import re
+import zlib
 from tkinter import (
     Frame,
     BOTH,
@@ -31,6 +29,8 @@ class MPPTTerminalPanel(Frame):
         super().__init__(master, bg=bg, **kwargs)
         self.bg = bg
         self.fg = fg
+
+        self.device_short_id: str | None = None
 
         # ---------------- Верхняя панель ----------------
         top = Frame(self, bg=bg)
@@ -87,9 +87,7 @@ class MPPTTerminalPanel(Frame):
 
         # ---------------- Логика MPPT ----------------
         self.serial = SerialAuto(baudrate=115200)
-        # Эмулятор терминала pyte
         self.term = PyteTerminal(cols=64, rows=18)
-        # Рендер pyte-экрана на Canvas
         self.canvas_term = CanvasTerminal(
             self.canvas,
             self.term,
@@ -104,8 +102,6 @@ class MPPTTerminalPanel(Frame):
 
         self.running = False
         self.thread = None
-
-        # флаг, чтобы не заспамить .after()
         self._render_scheduled = False
 
         self.rescan_ports()
@@ -191,7 +187,7 @@ class MPPTTerminalPanel(Frame):
         self.thread.start()
 
     # --------------------------------------------------------------
-    # Чтение UART (фоновый поток, БЕЗ прямого доступа к Tk)
+    # Чтение UART
     # --------------------------------------------------------------
     def _reader_loop(self):
         while self.running and self.serial.ser:
@@ -209,36 +205,98 @@ class MPPTTerminalPanel(Frame):
             text_raw = data.decode(errors="ignore")
             text_raw = text_raw.replace("\x00", "")
 
-            # Кормим pyte в фоновом потоке (без Tk)
+            # Кормим pyte
             self.term.feed(text_raw)
 
-            # Просим перерисовать Canvas в главном потоке
+            # Маскаруем UID внутри pyte
+            self._mask_uid_in_screen()
+
+            # Обновляем UI
             self._schedule_render()
 
     # --------------------------------------------------------------
-    # Планировщик рендера (UI только через .after)
+    # Маскирование UID в pyte buffer
+    # --------------------------------------------------------------
+    def _mask_uid_in_screen(self):
+        screen = self.term.screen
+        cols = screen.columns
+        rows = len(screen.buffer)
+
+        # UID универсальный паттерн STM32
+        uid_pattern = re.compile(
+            r"\S-\S-[0-9A-Fa-f]{8}-[0-9A-Fa-f]{8}"
+        )
+
+        from pyte.screens import Char
+
+        for row in range(rows):
+            rowbuf = screen.buffer.get(row, {})
+            if not rowbuf:
+                continue
+
+            line_chars = "".join(
+                (rowbuf.get(c).data if rowbuf.get(c) else " ")
+                for c in range(cols)
+            )
+
+            m = uid_pattern.search(line_chars)
+            if not m:
+                continue
+
+            full_uid = m.group(0)
+            start, end = m.span()
+
+            # CRC16 при первом найденном UID
+            if not self.device_short_id:
+                parts = full_uid.split("-", maxsplit=2)
+                hex_uid = parts[2].replace("-", "")
+                uid_bytes = bytes.fromhex(hex_uid)
+                crc = zlib.crc32(uid_bytes) & 0xFFFF
+                self.device_short_id = f"{crc:04X}"
+                print("Short UID =", self.device_short_id)
+
+            replacement = f"ID:{self.device_short_id}"
+            replacement = replacement.ljust(end - start)
+
+            new_line = line_chars[:start] + replacement + line_chars[end:]
+
+            # Запись обратно через создание НОВЫХ Char()
+            for c, ch in enumerate(new_line):
+                old = rowbuf.get(c)
+                if old:
+                    rowbuf[c] = Char(
+                        ch,
+                        old.fg,
+                        old.bg,
+                        old.bold,
+                        old.italics,
+                        old.underscore,
+                        old.strikethrough,
+                        old.reverse
+                    )
+                else:
+                    rowbuf[c] = Char(ch)
+
+            return
+
+    # --------------------------------------------------------------
+    # Рендер
     # --------------------------------------------------------------
     def _schedule_render(self):
         if self._render_scheduled:
             return
         self._render_scheduled = True
-        # отрисовка в главном потоке
         self.after(0, self._do_render)
 
     def _do_render(self):
         self._render_scheduled = False
         if not self.running:
             return
-        # перерисовываем только изменившиеся ячейки
         self.canvas_term.render_diff()
 
     # --------------------------------------------------------------
-    # Логирование блока (для Excel и т.п.)
+    # Логирование
     # --------------------------------------------------------------
     def save_block(self):
-        """
-        Сохраняем текущий "экран" pyte как список строк.
-        MPPTLogger дальше сделает txt/xlsx.
-        """
         block = self.term.get_lines()
         self.logger.save_block(block)
