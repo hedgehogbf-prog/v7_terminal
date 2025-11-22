@@ -278,7 +278,7 @@ class MPPTTerminalPanel(Frame):
 
         # UID универсальный паттерн STM32
         uid_pattern = re.compile(
-            r"\S-\S-[0-9A-Fa-f]{8}-[0-9A-Fa-f]{8}"
+            r"[0-9A-Fa-f]+-[0-9A-Fa-f]+-[0-9A-Fa-f]+-[0-9A-Fa-f]+"
         )
 
         from pyte.screens import Char
@@ -303,7 +303,7 @@ class MPPTTerminalPanel(Frame):
             # CRC16 при первом найденном UID
             if not self.device_short_id:
                 parts = full_uid.split("-", maxsplit=2)
-                hex_uid = parts[2].replace("-", "")
+                hex_uid = full_uid.replace("-", "")
                 uid_bytes = bytes.fromhex(hex_uid)
                 crc = zlib.crc32(uid_bytes) & 0xFFFF
                 self.device_short_id = f"{crc:04X}"
