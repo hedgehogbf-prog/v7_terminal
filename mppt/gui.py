@@ -1,4 +1,4 @@
-# mppt/gui.py — финальная версия с маскированием UID в pyte screen
+# mppt/gui.py — версия с буферизацией по кадрам и универсальным маскированием UID (вариант B)
 # -----------------------------------------------------------
 
 import threading
@@ -25,12 +25,31 @@ from mppt.terminal_canvas import CanvasTerminal
 
 
 class MPPTTerminalPanel(Frame):
+    """
+    Панель MPPT-терминала:
+    - буферизация по кадрам между ESC[2J]
+    - универсальная маскировка UID → ID:XXXX
+    - кнопка "+" с удержанием
+    """
+
+    # ✅ UID: строго 4 группы, разделённые "-", группы — любые символы кроме пробела, CR, LF и самого "-"
+    #    Формат: <grp1>-<grp2>-<grp3>-<grp4>, длины любых групп могут быть любыми
+    UID_REGEX = re.compile(
+        r"\x1b\[0m\s*([^- \r\n]+-[^- \r\n]+-[^- \r\n]+-[^- \r\n]+)"
+    )
+
+    ESC_CLEAR = "\x1b[2J"
+
     def __init__(self, master, bg="#202124", fg="#e8eaed", **kwargs):
         super().__init__(master, bg=bg, **kwargs)
         self.bg = bg
         self.fg = fg
 
+        # Короткий ID для текущего кадра (CRC16 от UID-строки)
         self.device_short_id: str | None = None
+
+        # Буфер текущего кадра (между ESC[2J])
+        self._frame_buf: str = ""
 
         # ---------------- Верхняя панель ----------------
         top = Frame(self, bg=bg)
@@ -80,9 +99,9 @@ class MPPTTerminalPanel(Frame):
             activeforeground=fg,
         )
         self.btn_save.pack(side=LEFT, padx=4, pady=4)
-        
+
         # ---------------- Кнопка "+" ----------------
-        self._plus_running = False  # флаг удержания
+        self._plus_running = False
 
         self.btn_plus = Button(
             top,
@@ -95,16 +114,14 @@ class MPPTTerminalPanel(Frame):
         )
         self.btn_plus.pack(side=LEFT, padx=4, pady=4)
 
-        # обработчики удержания
         self.btn_plus.bind("<ButtonPress-1>", lambda e: self._plus_press())
         self.btn_plus.bind("<ButtonRelease-1>", lambda e: self._plus_release())
-
 
         # ---------------- Canvas-терминал ----------------
         self.canvas = Canvas(self, bg=bg, highlightthickness=0)
         self.canvas.pack(side=TOP, fill=BOTH, expand=True, padx=4, pady=4)
 
-        # ---------------- Логика MPPT ----------------
+        # ---------------- Логика терминала ----------------
         self.serial = SerialAuto(baudrate=115200)
         self.term = PyteTerminal(cols=64, rows=18)
         self.canvas_term = CanvasTerminal(
@@ -147,11 +164,9 @@ class MPPTTerminalPanel(Frame):
         if devs:
             if self.port_var.get() not in devs:
                 self.port_var.set(devs[0])
-            self._set_status_stub("MPPT: список COM обновлён", "cyan")
         else:
             self.port_var.set("")
             self.combo_port["values"] = []
-            self._set_status_stub("MPPT: портов нет", "yellow")
 
     def rescan_ports_external(self):
         self.rescan_ports()
@@ -166,9 +181,6 @@ class MPPTTerminalPanel(Frame):
                 self.running = True
                 self.btn_connect.config(
                     text=f"Disconnect ({self.serial.current_port})"
-                )
-                self._set_status_stub(
-                    f"MPPT: автоподключено ({self.serial.current_port})", "green"
                 )
                 self.thread = threading.Thread(
                     target=self._reader_loop, daemon=True
@@ -185,12 +197,10 @@ class MPPTTerminalPanel(Frame):
             self.running = False
             self.serial.close()
             self.btn_connect.config(text="Connect")
-            self._set_status_stub("MPPT: отключено", "yellow")
             return
 
         port = self.port_var.get().strip()
         if not self.serial.ensure(port):
-            self._set_status_stub("MPPT: не удалось открыть порт", "red")
             return
 
         if not port:
@@ -198,22 +208,20 @@ class MPPTTerminalPanel(Frame):
 
         self.running = True
         self.btn_connect.config(text=f"Disconnect ({self.serial.current_port})")
-        self._set_status_stub(
-            f"MPPT: подключено ({self.serial.current_port})", "green"
-        )
 
         self.thread = threading.Thread(target=self._reader_loop, daemon=True)
         self.thread.start()
 
     # --------------------------------------------------------------
-    # Чтение UART
+    # Чтение UART + буферизация по кадрам (между ESC[2J])
     # --------------------------------------------------------------
     def _reader_loop(self):
+        esc = self.ESC_CLEAR
+
         while self.running and self.serial.ser:
             try:
                 data = self.serial.ser.read_all()
             except Exception:
-                self._set_status_stub("MPPT: ошибка чтения", "red")
                 self.running = False
                 break
 
@@ -221,22 +229,91 @@ class MPPTTerminalPanel(Frame):
                 time.sleep(0.01)
                 continue
 
-            text_raw = data.decode(errors="ignore")
-            text_raw = text_raw.replace("\x00", "")
+            chunk = data.decode(errors="ignore").replace("\x00", "")
+            if not chunk:
+                continue
 
-            # Кормим pyte
-            self.term.feed(text_raw)
+            buf = chunk
 
-            # Маскаруем UID внутри pyte
-            self._mask_uid_in_screen()
+            # Разбираем текущий chunk на части относительно ESC[2J]
+            while True:
+                idx = buf.find(esc)
+                if idx == -1:
+                    # в этом куске больше нет ESC[2J] — просто добавляем остаток в текущий кадр
+                    self._frame_buf += buf
+                    break
 
-            # Обновляем UI
-            self._schedule_render()
-            
+                # всё до ESC[2J] — хвост предыдущего кадра
+                prefix = buf[:idx]
+                if prefix:
+                    self._frame_buf += prefix
+
+                # если в буфере уже что-то есть — это завершённый кадр
+                if self._frame_buf:
+                    self._process_full_frame(self._frame_buf)
+
+                # начинаем новый кадр: кладём ESC[2J] как начало
+                self._frame_buf = esc
+
+                # обрезаем обработанную часть + ESC[2J]
+                buf = buf[idx + len(esc):]
+
     # --------------------------------------------------------------
-    # +++++++++
-    # --------------------------------------------------------------       
-    
+    # Обработка завершённого кадра
+    # --------------------------------------------------------------
+    def _process_full_frame(self, frame_text: str):
+        """
+        На вход приходит ПОЛНЫЙ кадр, начинающийся с ESC[2J] и заканчивающийся
+        перед следующим ESC[2J].
+
+        Логика:
+        - ищем UID формата <grp1>-<grp2>-<grp3>-<grp4>
+        - если UID найден → считаем CRC16 по строке UID и заменяем UID на ID:XXXX
+        - если UID НЕ найден → очищаем device_short_id (вариант B)
+        """
+        try:
+            with open("mppt_frames_raw.log", "a", encoding="utf-8") as f:
+                f.write("===== RAW FRAME =====\n")
+                f.write(repr(frame_text) + "\n")
+        except Exception:
+            pass
+        
+        m = self.UID_REGEX.search(frame_text)
+
+        if not m:
+            # В этом кадре UID нет — ID для этого кадра отсутствует
+            self.device_short_id = None
+        else:
+            full_uid = m.group(1)  # например "7-c-32305311-20383346" или любой другой вариант
+
+            # CRC считаем по UID как по строке (ASCII), без доп. предположений
+            uid_bytes = full_uid.encode("ascii", errors="ignore")
+            crc = zlib.crc32(uid_bytes) & 0xFFFF
+            short = f"{crc:04X}"
+
+            self.device_short_id = short
+
+            start, end = m.span()
+            masked = f"ID:{short}".ljust(end - start)
+            frame_text = frame_text[:start] + masked + frame_text[end:]
+
+        # Лог для отладки кадров
+        try:
+            with open("mppt_frames_debug.log", "a", encoding="utf-8") as f:
+                f.write("===== FRAME =====\n")
+                f.write(repr(frame_text) + "\n")
+        except Exception:
+            pass
+
+        # Кормим pyte целым кадром
+        self.term.feed(frame_text)
+
+        # Обновляем UI
+        self._schedule_render()
+
+    # --------------------------------------------------------------
+    # Кнопка "+"
+    # --------------------------------------------------------------
     def _plus_press(self):
         """Начать непрерывную отправку '+' при удержании кнопки."""
         if not self.running or not self.serial.ser:
@@ -253,85 +330,19 @@ class MPPTTerminalPanel(Frame):
                     self.serial.ser.write(b"+")
                 except Exception:
                     break
-                time.sleep(0.07)  # частота повторения 70 мс
+                time.sleep(0.07)  # период повторения при удержании
 
         threading.Thread(target=worker, daemon=True).start()
 
     def _plus_release(self):
-        """Остановить поток отправки '+' и отправить один плюс."""
+        """Остановить поток отправки '+' и отправить один '+' при отпускании."""
         self._plus_running = False
 
         try:
             if self.running and self.serial.ser:
                 self.serial.ser.write(b"+")
-        except:
+        except Exception:
             pass
-
-
-    # --------------------------------------------------------------
-    # Маскирование UID в pyte buffer
-    # --------------------------------------------------------------
-    def _mask_uid_in_screen(self):
-        screen = self.term.screen
-        cols = screen.columns
-        rows = len(screen.buffer)
-
-        # UID универсальный паттерн STM32
-        uid_pattern = re.compile(
-            r"[0-9A-Fa-f]+-[0-9A-Fa-f]+-[0-9A-Fa-f]+-[0-9A-Fa-f]+"
-        )
-
-        from pyte.screens import Char
-
-        for row in range(rows):
-            rowbuf = screen.buffer.get(row, {})
-            if not rowbuf:
-                continue
-
-            line_chars = "".join(
-                (rowbuf.get(c).data if rowbuf.get(c) else " ")
-                for c in range(cols)
-            )
-
-            m = uid_pattern.search(line_chars)
-            if not m:
-                continue
-
-            full_uid = m.group(0)
-            start, end = m.span()
-
-            # CRC16 при первом найденном UID
-            if not self.device_short_id:
-                parts = full_uid.split("-", maxsplit=2)
-                hex_uid = full_uid.replace("-", "")
-                uid_bytes = bytes.fromhex(hex_uid)
-                crc = zlib.crc32(uid_bytes) & 0xFFFF
-                self.device_short_id = f"{crc:04X}"
-                print("Short UID =", self.device_short_id)
-
-            replacement = f"ID:{self.device_short_id}"
-            replacement = replacement.ljust(end - start)
-
-            new_line = line_chars[:start] + replacement + line_chars[end:]
-
-            # Запись обратно через создание НОВЫХ Char()
-            for c, ch in enumerate(new_line):
-                old = rowbuf.get(c)
-                if old:
-                    rowbuf[c] = Char(
-                        ch,
-                        old.fg,
-                        old.bg,
-                        old.bold,
-                        old.italics,
-                        old.underscore,
-                        old.strikethrough,
-                        old.reverse
-                    )
-                else:
-                    rowbuf[c] = Char(ch)
-
-            return
 
     # --------------------------------------------------------------
     # Рендер
@@ -352,5 +363,11 @@ class MPPTTerminalPanel(Frame):
     # Логирование
     # --------------------------------------------------------------
     def save_block(self):
-        block = self.term.get_lines()
-        self.logger.save_block(block)
+        """
+        Сохраняем текущий экран:
+        - lines  — строки pyte (без ANSI)
+        - colors — матрица цветов из CanvasTerminal.last_colors
+        """
+        lines = self.term.get_lines()
+        color_matrix = getattr(self.canvas_term, "last_colors", None)
+        self.logger.save_block(lines, color_matrix, self.device_short_id)

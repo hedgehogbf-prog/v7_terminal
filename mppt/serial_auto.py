@@ -26,6 +26,7 @@ IGNORED_DESCRIPTIONS: list[str] = [
 PREFERRED_DESCRIPTIONS: list[str] = [
     "STMicroelectronics STLink Virtual COM Port",
     "STLink Virtual COM Port",
+    "USB Serial Port"
 ]
 
 

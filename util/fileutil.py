@@ -1,8 +1,17 @@
-# util/fileutil.py
+# util/fileutil.py — обновлённая версия с кроссплатформенным путём логов
+
 import os
 from datetime import datetime
 
-DEFAULT_LOG_DIR = r"C:\Users\Flashchine\Documents\v7\logs"
+# Базовый каталог для логов:
+#   <Пользователь>/Documents/v7_terminal/logs
+DEFAULT_LOG_DIR = os.path.join(
+    os.path.expanduser("~"),
+    "Documents",
+    "v7_terminal",
+    "logs",
+)
+
 TXT_LOG = "mppt_log.txt"
 XLSX_LOG = "mppt_log.xlsx"
 
