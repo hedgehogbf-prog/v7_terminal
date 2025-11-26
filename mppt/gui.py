@@ -1,4 +1,4 @@
-# mppt/gui.py — версия с буферизацией по кадрам и авто-PASSED через logger.save_block(auto=True)
+# mppt/gui.py — версия с буферизацией по кадрам, авто-PASSED и интеграцией с Git (Commit / Push)
 # -----------------------------------------------------------
 
 import threading
@@ -19,7 +19,6 @@ from tkinter import (
 from tkinter import ttk
 
 from mppt.serial_auto import SerialAuto
-import mppt.logger  # чтобы явно использовать MPPTLogger, если нужно
 from mppt.logger import MPPTLogger
 from util.ansi import strip_ansi
 from mppt.terminal_pyte import PyteTerminal
@@ -33,6 +32,7 @@ class MPPTTerminalPanel(Frame):
     - универсальная маскировка UID → ID:XXXX
     - кнопка "+" с удержанием
     - авто-сохранение в Excel при появлении PASSED (строго через MPPTLogger.save_block(auto=True))
+    - кнопки Git: Commit и Push
     """
 
     # UID: строго 4 группы, разделённые "-", группы — любые символы кроме пробела, CR, LF и самого "-"
@@ -118,6 +118,29 @@ class MPPTTerminalPanel(Frame):
         self.btn_plus.bind("<ButtonPress-1>", lambda e: self._plus_press())
         self.btn_plus.bind("<ButtonRelease-1>", lambda e: self._plus_release())
 
+        # ---------------- Git-кнопки ----------------
+        self.btn_commit = Button(
+            top,
+            text="Commit",
+            command=self._git_commit_click,
+            bg="#303134",
+            fg=fg,
+            activebackground="#3c4043",
+            activeforeground=fg,
+        )
+        self.btn_commit.pack(side=LEFT, padx=4, pady=4)
+
+        self.btn_push = Button(
+            top,
+            text="Push",
+            command=self._git_push_click,
+            bg="#303134",
+            fg=fg,
+            activebackground="#3c4043",
+            activeforeground=fg,
+        )
+        self.btn_push.pack(side=LEFT, padx=4, pady=4)
+
         # ---------------- Canvas-терминал ----------------
         self.canvas = Canvas(self, bg=bg, highlightthickness=0)
         self.canvas.pack(side=TOP, fill=BOTH, expand=True, padx=4, pady=4)
@@ -136,6 +159,12 @@ class MPPTTerminalPanel(Frame):
         )
 
         self.logger = MPPTLogger(status_callback=self._set_status_stub)
+
+                # назначаем GUI status_callback (ты уже это делаешь в set_global_status)
+        self.logger.status_callback = self._set_status_stub
+
+        # вызываем pull уже после появления интерфейса
+        self.after(200, self.logger._git_pull_on_start_ui)
 
         self.running = False
         self.thread = None
@@ -212,6 +241,7 @@ class MPPTTerminalPanel(Frame):
 
         self.thread = threading.Thread(target=self._reader_loop, daemon=True)
         self.thread.start()
+
 
     # --------------------------------------------------------------
     # Чтение UART + буферизация по кадрам (между ESC[2J])
@@ -357,6 +387,24 @@ class MPPTTerminalPanel(Frame):
                 self.serial.ser.write(b"+")
         except Exception:
             pass
+
+    # --------------------------------------------------------------
+    # Git-кнопки
+    # --------------------------------------------------------------
+    def _git_commit_click(self):
+        """Обработчик кнопки Commit — делаем git commit логов."""
+        try:
+            self.logger.git_commit_logs()
+        except Exception as e:
+            # на всякий случай, чтобы GUI не падал
+            self._set_status_stub(f"Git: ошибка при commit: {e}", "red")
+
+    def _git_push_click(self):
+        """Обработчик кнопки Push — делаем git push."""
+        try:
+            self.logger.git_push()
+        except Exception as e:
+            self._set_status_stub(f"Git: ошибка при push: {e}", "red")
 
     # --------------------------------------------------------------
     # Рендер
