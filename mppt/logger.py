@@ -1,4 +1,4 @@
-# mppt/logger.py — новая версия с записью в Excel по кадру экрана pyte
+# mppt/logger.py — версия с записью в Excel и жёсткой авто-записью PASSED
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 import os
@@ -15,7 +15,7 @@ def _excel_color_from_hex(term_hex: str) -> str:
     по нашей схеме:
     - зелёный  -> 00AA00
     - красный  -> FF0000
-    - всё остальное (в т.ч. белый/жёлтый/синий) -> 000000 (чёрный)
+    - всё остальное -> 000000 (чёрный)
     """
     if not term_hex:
         return "000000"
@@ -39,9 +39,10 @@ def _excel_color_from_hex(term_hex: str) -> str:
 
 class MPPTLogger:
     def __init__(self, base_dir=None, status_callback=None):
-        # txt + xlsx пути задаются через util.fileutil.get_log_paths
         self.txt_path, self.xlsx_path = get_log_paths(base_dir)
         self.status_callback = status_callback
+        # запоминаем, для какого ID уже автозаписывали PASSED в этом сеансе
+        self.last_passed_id: str | None = None
 
     # ----------------------------------------------------------
     def _set_status(self, msg, color="white"):
@@ -53,48 +54,81 @@ class MPPTLogger:
     # ----------------------------------------------------------
     def _ensure_workbook(self):
         """
-        Гарантируем наличие xlsx-файла.
-        Если его нет — создаём с первой строкой-заголовком.
+        Создаёт/открывает Excel-файл.
+        Возвращает три листа:
+            wb, основной ws, PASSED-лист ws_passed
         """
         if os.path.exists(self.xlsx_path):
             wb = load_workbook(self.xlsx_path)
-            ws = wb.active
-            return wb, ws
 
+            # основной лист
+            ws = wb.active
+
+            # PASSED лист – создать, если его ещё нет
+            if "PASSED" in wb.sheetnames:
+                ws_passed = wb["PASSED"]
+            else:
+                ws_passed = wb.create_sheet("PASSED")
+                ws_passed.append(
+                    [
+                        "ID",
+                        "UART",
+                        "Voltage",
+                        "U_bat",
+                        "U_src",
+                        "Current",
+                        "I_crg",
+                        "I_ch1",
+                        "I_ch2",
+                        "Charger",
+                        "M_sens",
+                        "L_sens",
+                    ]
+                )
+
+            return wb, ws, ws_passed
+
+        # ----- Если файла нет, создаём -----
         wb = Workbook()
         ws = wb.active
-        # Заголовок – можно потом отредактировать вручную
-        ws.append([
-            "ID",       # 1
-            "UART",     # 2
-            "Voltage",  # 3
-            "U_bat",    # 4
-            "U_src",    # 5
-            "Current",  # 6
-            "I_crg",    # 7
-            "I_ch1",    # 8
-            "I_ch2",    # 9
-            "Charger",  # 10
-            "M_sens",   # 11
-            "L_sens",   # 12
-        ])
+        ws.title = "Sheet"
+
+        header = [
+            "ID",
+            "UART",
+            "Voltage",
+            "U_bat",
+            "U_src",
+            "Current",
+            "I_crg",
+            "I_ch1",
+            "I_ch2",
+            "Charger",
+            "M_sens",
+            "L_sens",
+        ]
+        ws.append(header)
+
+        ws_passed = wb.create_sheet("PASSED")
+        ws_passed.append(header)
+
         wb.save(self.xlsx_path)
-        return wb, ws
+        return wb, ws, ws_passed
 
     # ----------------------------------------------------------
     def _row_hex_color(self, color_matrix, row_idx: int) -> str | None:
         """
-        Берём цвет строки из last_colors CanvasTerminal.
-        color_matrix – это self.canvas_term.last_colors: список списков "#RRGGBB".
+        Берёт цвет первой видимой цветной ячейки строки pyte.
         """
         if color_matrix is None:
             return None
         if not (0 <= row_idx < len(color_matrix)):
             return None
+
         row = color_matrix[row_idx]
         if not row:
             return None
-        # первый ненулевой цвет в строке
+
         for c in row:
             if c:
                 return c
@@ -103,122 +137,154 @@ class MPPTLogger:
     # ----------------------------------------------------------
     def _parse_frame(self, lines: list[str], color_matrix):
         """
-        Парсинг кадра (18 строк pyte.get_lines()) в:
-        - values[0..11]   — значения для 12 столбцов Excel
-        - colors[0..11]   — цвета шрифта в Excel ("RRGGBB")
-
-        Соответствие столбцов:
-        1  -> ID (без "ID:")
-        2  -> UART        [ ... ]
-        3  -> Voltage     [ ... ]
-        4  -> U_bat       число
-        5  -> U_src       число
-        6  -> Current     [ ... ]
-        7  -> I_crg       число
-        8  -> I_ch1       число
-        9  -> I_ch2       число
-        10 -> Charger     [ ... ]
-        11 -> M_sens      [ ... ]
-        12 -> L_sens      [ ... ]
+        Парсинг кадра (18 строк pyte.get_lines()) в массив значений и цветов.
         """
-        # 12 столбцов, по умолчанию пустые/чёрные
-        values: list[str] = ["" for _ in range(12)]
-        colors: list[str] = ["000000" for _ in range(12)]
+        values = ["" for _ in range(12)]
+        colors = ["000000" for _ in range(12)]
 
         plain_lines = [strip_ansi(l) for l in lines]
 
-        # ---------- Столбец 1: ID (из "ID:XXXX") ----------
+        # ---------- ID ----------
         id_pattern = re.compile(r"ID:([0-9A-Fa-f]{4})")
-        for row_idx, line in enumerate(plain_lines):
-            m = id_pattern.search(line)
+        for row_idx, ln in enumerate(plain_lines):
+            m = id_pattern.search(ln)
             if m:
                 values[0] = m.group(1).upper()
                 term_hex = self._row_hex_color(color_matrix, row_idx)
                 colors[0] = _excel_color_from_hex(term_hex)
                 break
 
-        # ---------- Остальные столбцы по меткам ----------
-        # режим:
-        #   "bracket" — берём текст внутри [...]
-        #   "number"  — берём число после метки
+        # ---------- Остальные поля ----------
         rules = [
-            ("UART",    1, "bracket"),
+            ("UART", 1, "bracket"),
             ("Voltage", 2, "bracket"),
-            ("U_bat",   3, "number"),
-            ("U_src",   4, "number"),
+            ("U_bat", 3, "number"),
+            ("U_src", 4, "number"),
             ("Current", 5, "bracket"),
-            ("I_crg",   6, "number"),
-            ("I_ch1",   7, "number"),
-            ("I_ch2",   8, "number"),
+            ("I_crg", 6, "number"),
+            ("I_ch1", 7, "number"),
+            ("I_ch2", 8, "number"),
             ("Charger", 9, "bracket"),
-            ("M_sens",  10, "bracket"),
-            ("L_sens",  11, "bracket"),
+            ("M_sens", 10, "bracket"),
+            ("L_sens", 11, "bracket"),
         ]
 
-        for row_idx, line in enumerate(plain_lines):
-            if not line.strip():
+        for row_idx, ln in enumerate(plain_lines):
+            if not ln.strip():
                 continue
 
             for label, col_idx, mode in rules:
-                if label not in line:
+                if label not in ln:
                     continue
 
                 term_hex = self._row_hex_color(color_matrix, row_idx)
                 colors[col_idx] = _excel_color_from_hex(term_hex)
 
                 if mode == "bracket":
-                    m = re.search(r"\[([^\]]*)\]", line)
+                    m = re.search(r"\[([^\]]*)\]", ln)
                     if m:
                         values[col_idx] = m.group(1).strip()
+
                 elif mode == "number":
-                    # ищем целое число после метки
-                    m = re.search(rf"{re.escape(label)}\s+(-?\d+)", line)
+                    m = re.search(rf"{re.escape(label)}\s+(-?\d+)", ln)
                     if m:
                         values[col_idx] = m.group(1).strip()
 
         return values, colors
 
     # ----------------------------------------------------------
-    def save_block(self, lines: list[str], color_matrix=None, short_id=None):
+    def save_block(self, lines: list[str], color_matrix=None, short_id=None, auto: bool = False):
         """
-        Основной метод:
-        - пишет TXT-лог (чистый текст без ANSI)
-        - добавляет строку в Excel
+        Пишем TXT-лог и строку Excel.
 
-        lines        — список строк экрана (pyte.get_lines())
-        color_matrix — матрица цветов CanvasTerminal.last_colors ("#RRGGBB")
+        Режимы:
+        - auto=False (ручное сохранение по кнопке):
+            * если в кадре есть PASSED → запись в лист PASSED (один раз на ID)
+            * иначе → запись в основной лист Sheet
+        - auto=True (авто-сохранение при появлении PASSED):
+            * если PASSED нет → Excel не трогаем, только TXT-лог
+            * если PASSED есть → запись ТОЛЬКО в лист PASSED (один раз на ID)
         """
         if not lines:
             self._set_status("MPPT: нет блока для сохранения", "red")
             return
 
         ts = timestamp_str()
-        clean_block = [strip_ansi(l) for l in lines]
+        plain = [strip_ansi(l) for l in lines]
 
-        # ---------- TXT-лог ----------
+        # ---------- TXT LOG (всегда) ----------
         os.makedirs(os.path.dirname(self.txt_path), exist_ok=True)
         with open(self.txt_path, "a", encoding="utf-8") as f:
             f.write("\n" + "-" * 50 + "\n")
             f.write(f"[{ts}]\n")
-            for l in clean_block:
+            for l in plain:
                 f.write(l.rstrip() + "\n")
             f.write("-" * 50 + "\n")
 
+        # ---------- Проверка PASSED по ВСЕМ строкам ----------
+        is_passed = any("PASSED" in l.upper() for l in plain)
+
+        # Авто-режим: если PASSED нет — Excel не трогаем
+        if auto and not is_passed:
+            self._set_status("MPPT: авто-сохранение — PASSED не найден, Excel пропущен", "yellow")
+            return
+
         # ---------- Excel ----------
-        wb, ws = self._ensure_workbook()
+        wb, ws, ws_passed = self._ensure_workbook()
 
         values, colors = self._parse_frame(lines, color_matrix)
-        
-        # --- ПРИНУДИТЕЛЬНАЯ запись ID из short_id (если был передан из GUI) ---
+
+        # принудительная запись ID из short_id (из GUI)
         if short_id:
             values[0] = short_id.upper()
-            colors[0] = "000000"  # всегда чёрный
-        # дописываем в конец
-        row_idx = ws.max_row + 1
+            colors[0] = "000000"
+
+        cur_id = values[0]
+
+        if is_passed:
+            # строгая логика: если ID есть и уже использовался — пропускаем дубль
+            if cur_id:
+                if self.last_passed_id == cur_id:
+                    #self._set_status(
+                    #    f"MPPT: сохранено в лист PASSED", "green"
+                    #)
+                    return
+                # новый ID → разрешаем и запоминаем
+                self.last_passed_id = cur_id
+
+            target_ws = ws_passed
+        else:
+            # обычная ручная запись (без PASSED)
+            target_ws = ws
+
+        # запись в конец выбранного листа
+        row_idx = target_ws.max_row + 1
 
         for i, (val, col) in enumerate(zip(values, colors), start=1):
-            cell = ws.cell(row=row_idx, column=i, value=val)
+            cell = target_ws.cell(row=row_idx, column=i, value=val)
             cell.font = Font(color=col)
 
-        wb.save(self.xlsx_path)
-        self._set_status(f"MPPT: блок сохранён (строка {row_idx})", "green")
+        try:
+            wb.save(self.xlsx_path)
+
+            if is_passed:
+                self._set_status(f"MPPT: сохранено в лист PASSED (строка {row_idx})", "green")
+            else:
+                self._set_status(f"MPPT: блок сохранён (строка {row_idx})", "green")
+
+        except PermissionError:
+            # Excel-файл занят другой программой (обычно Excel)
+            if is_passed:
+                self._set_status(
+                    f"MPPT: Excel-файл занят — PASSED для ID {cur_id} НЕ сохранён",
+                    "red"
+                )
+            else:
+                self._set_status(
+                    f"MPPT: Excel-файл занят — сохранение пропущено",
+                    "yellow"
+                )
+
+        except Exception as e:
+            self._set_status(f"MPPT: ошибка сохранения Excel: {e}", "red")
+

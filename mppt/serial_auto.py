@@ -25,8 +25,7 @@ IGNORED_DESCRIPTIONS: list[str] = [
 # Для ST-Link MPPT-терминала нас интересует Virtual COM Port от ST.
 PREFERRED_DESCRIPTIONS: list[str] = [
     "STMicroelectronics STLink Virtual COM Port",
-    "STLink Virtual COM Port",
-    "USB Serial Port"
+    "STLink Virtual COM Port"
 ]
 
 

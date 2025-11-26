@@ -1,4 +1,4 @@
-# mppt/gui.py — версия с буферизацией по кадрам и универсальным маскированием UID (вариант B)
+# mppt/gui.py — версия с буферизацией по кадрам и авто-PASSED через logger.save_block(auto=True)
 # -----------------------------------------------------------
 
 import threading
@@ -19,7 +19,9 @@ from tkinter import (
 from tkinter import ttk
 
 from mppt.serial_auto import SerialAuto
+import mppt.logger  # чтобы явно использовать MPPTLogger, если нужно
 from mppt.logger import MPPTLogger
+from util.ansi import strip_ansi
 from mppt.terminal_pyte import PyteTerminal
 from mppt.terminal_canvas import CanvasTerminal
 
@@ -30,13 +32,12 @@ class MPPTTerminalPanel(Frame):
     - буферизация по кадрам между ESC[2J]
     - универсальная маскировка UID → ID:XXXX
     - кнопка "+" с удержанием
+    - авто-сохранение в Excel при появлении PASSED (строго через MPPTLogger.save_block(auto=True))
     """
 
-    # ✅ UID: строго 4 группы, разделённые "-", группы — любые символы кроме пробела, CR, LF и самого "-"
-    #    Формат: <grp1>-<grp2>-<grp3>-<grp4>, длины любых групп могут быть любыми
-    UID_REGEX = re.compile(
-        r"\x1b\[0m\s*([^- \r\n]+-[^- \r\n]+-[^- \r\n]+-[^- \r\n]+)"
-    )
+    # UID: строго 4 группы, разделённые "-", группы — любые символы кроме пробела, CR, LF и самого "-"
+    # Формат: <grp1>-<grp2>-<grp3>-<grp4>, длины любых групп могут быть любыми
+    UID_REGEX = re.compile(r"\x1b\[0m\s*([^- \r\n]+-[^- \r\n]+-[^- \r\n]+-[^- \r\n]+)")
 
     ESC_CLEAR = "\x1b[2J"
 
@@ -269,15 +270,12 @@ class MPPTTerminalPanel(Frame):
         Логика:
         - ищем UID формата <grp1>-<grp2>-<grp3>-<grp4>
         - если UID найден → считаем CRC16 по строке UID и заменяем UID на ID:XXXX
-        - если UID НЕ найден → очищаем device_short_id (вариант B)
+        - если UID НЕ найден → очищаем device_short_id
+        - кормим pyte целым кадром
+        - после обновления терминала ищем PASSED во всём кадре и, если он есть,
+          вызываем logger.save_block(..., auto=True) — это и решает, куда писать
         """
-        try:
-            with open("mppt_frames_raw.log", "a", encoding="utf-8") as f:
-                f.write("===== RAW FRAME =====\n")
-                f.write(repr(frame_text) + "\n")
-        except Exception:
-            pass
-        
+        # --- 1. UID → short ID ---
         m = self.UID_REGEX.search(frame_text)
 
         if not m:
@@ -292,23 +290,39 @@ class MPPTTerminalPanel(Frame):
             short = f"{crc:04X}"
 
             self.device_short_id = short
-
+            #print(f"[ID DEBUG] Calculated ID for frame: {short}   from UID={full_uid}")
             start, end = m.span()
             masked = f"ID:{short}".ljust(end - start)
             frame_text = frame_text[:start] + masked + frame_text[end:]
 
-        # Лог для отладки кадров
-        try:
-            with open("mppt_frames_debug.log", "a", encoding="utf-8") as f:
-                f.write("===== FRAME =====\n")
-                f.write(repr(frame_text) + "\n")
-        except Exception:
-            pass
-
-        # Кормим pyte целым кадром
+        # --- 2. Кормим pyte целым кадром ---
         self.term.feed(frame_text)
 
-        # Обновляем UI
+        # --- 3. Авто-PASSED-сохранение (жёсткая логика, через logger) ---
+        try:
+            lines = self.term.get_lines()
+        except Exception:
+            lines = []
+
+        has_passed = False
+        if lines:
+            plain_lines = [strip_ansi(l) for l in lines]
+            for ln in plain_lines:
+                if "PASSED" in ln.upper():
+                    has_passed = True
+                    break
+
+        if has_passed:
+            #print("[AUTO-PASSED] TRIGGERED in _process_full_frame")
+
+            self.logger.save_block(
+                lines,
+                getattr(self.canvas_term, "last_colors", None),
+                self.device_short_id,
+                auto=True,  # <- включает режим "только PASSED в Excel, с защитой по ID"
+            )
+
+        # --- 4. Обновляем UI ---
         self._schedule_render()
 
     # --------------------------------------------------------------
@@ -357,16 +371,20 @@ class MPPTTerminalPanel(Frame):
         self._render_scheduled = False
         if not self.running:
             return
+
+        # обновление отображения
         self.canvas_term.render_diff()
 
     # --------------------------------------------------------------
-    # Логирование
+    # Логирование (ручная кнопка — НЕ трогаем логику)
     # --------------------------------------------------------------
     def save_block(self):
         """
-        Сохраняем текущий экран:
+        Сохраняем текущий экран по кнопке:
         - lines  — строки pyte (без ANSI)
         - colors — матрица цветов из CanvasTerminal.last_colors
+
+        Эта функция остаётся совместимой со старым поведением.
         """
         lines = self.term.get_lines()
         color_matrix = getattr(self.canvas_term, "last_colors", None)
