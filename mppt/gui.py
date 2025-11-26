@@ -25,6 +25,14 @@ from mppt.terminal_pyte import PyteTerminal
 from mppt.terminal_canvas import CanvasTerminal
 
 
+def extract_com_number(text: str) -> str:
+    """Извлекает 'COMxx' из строки вида 'Something (COMxx)'. Если не найдено – возвращает исходную строку."""
+    m = re.search(r"(COM\d+)", text)
+    if m:
+        return m.group(1)
+    return text
+
+
 class MPPTTerminalPanel(Frame):
     """
     Панель MPPT-терминала:
@@ -45,6 +53,7 @@ class MPPTTerminalPanel(Frame):
         super().__init__(master, bg=bg, **kwargs)
         self.bg = bg
         self.fg = fg
+        self.autoconnect_enabled = True  # автоконнект включён, пока пользователь сам не нажмёт Disconnect
 
         # Короткий ID для текущего кадра (CRC16 от UID-строки)
         self.device_short_id: str | None = None
@@ -63,7 +72,7 @@ class MPPTTerminalPanel(Frame):
         self.combo_port = ttk.Combobox(
             top,
             textvariable=self.port_var,
-            width=18,
+            width=50,
             state="readonly",
         )
         self.combo_port.pack(side=LEFT, padx=2, pady=4)
@@ -159,8 +168,7 @@ class MPPTTerminalPanel(Frame):
         )
 
         self.logger = MPPTLogger(status_callback=self._set_status_stub)
-
-                # назначаем GUI status_callback (ты уже это делаешь в set_global_status)
+        # назначаем GUI status_callback (дублируем в set_global_status)
         self.logger.status_callback = self._set_status_stub
 
         # вызываем pull уже после появления интерфейса
@@ -187,34 +195,64 @@ class MPPTTerminalPanel(Frame):
     # Работа с портами
     # --------------------------------------------------------------
     def rescan_ports(self):
+        """Обновляет список COM-портов с читаемым описанием."""
         ports = self.serial.list_ports()
-        devs = [p.device for p in ports]
+        labels: list[str] = []
 
-        self.combo_port["values"] = devs
-        if devs:
-            if self.port_var.get() not in devs:
-                self.port_var.set(devs[0])
+        for p in ports:
+            # если description пустой — используем hwid или заглушку
+            desc = p.description or p.hwid or "Неизвестное устройство"
+
+            # Windows часто делает "USB-SERIAL CH340 (COM26)" —
+            # чтобы не дублировать COM, убираем хвост "(COMxx)" из описания
+            if f"({p.device})" in desc:
+                desc = desc.replace(f" ({p.device})", "")
+
+            # Итоговый вид: "STLink Virtual COM Port (COM25)"
+            label = f"{desc} ({p.device})"
+            labels.append(label)
+
+        self.combo_port["values"] = labels
+
+        # выставляем текущий порт, если он уже открыт
+        if self.serial.current_port:
+            cur = self.serial.current_port
+            for lbl in labels:
+                if cur in lbl:
+                    self.port_var.set(lbl)
+                    break
+        elif labels:
+            # если ничего не выбрано — по умолчанию первый
+            self.port_var.set(labels[0])
         else:
             self.port_var.set("")
             self.combo_port["values"] = []
 
+        self._set_status_stub("Порты MPPT обновлены", "green")
+
     def rescan_ports_external(self):
+        """Внешний вызов из других частей GUI."""
         self.rescan_ports()
 
     # --------------------------------------------------------------
     # Автоконнект
     # --------------------------------------------------------------
     def _autoconnect_loop(self):
+        if not self.autoconnect_enabled:
+            self.after(500, self._autoconnect_loop)
+            return
+
         if not self.running:
-            port = self.port_var.get().strip() or None
+            port_display = self.port_var.get().strip() or None
+            port = None
+            if port_display:
+                port = extract_com_number(port_display)
+
             if self.serial.ensure(port):
                 self.running = True
-                self.btn_connect.config(
-                    text=f"Disconnect ({self.serial.current_port})"
-                )
-                self.thread = threading.Thread(
-                    target=self._reader_loop, daemon=True
-                )
+                self.btn_connect.config(text=f"Disconnect ({self.serial.current_port})")
+                self._set_status_stub(f"Автоподключено к {self.serial.current_port}", "green")
+                self.thread = threading.Thread(target=self._reader_loop, daemon=True)
                 self.thread.start()
 
         self.after(500, self._autoconnect_loop)
@@ -223,14 +261,35 @@ class MPPTTerminalPanel(Frame):
     # Ручное подключение
     # --------------------------------------------------------------
     def toggle_connect(self):
+        # ======= Режим ОТКЛЮЧЕНИЯ =======
         if self.running:
             self.running = False
-            self.serial.close()
+            # пользователь явно отключил — автоконнект выключаем
+            self.autoconnect_enabled = False
+
+            try:
+                # SerialAuto сам корректно закрывает self.ser
+                self.serial.close()
+            except Exception as e:
+                self._set_status_stub(f"Ошибка при отключении: {e}", "red")
+            else:
+                self._set_status_stub("COM порт отключён", "yellow")
+
             self.btn_connect.config(text="Connect")
             return
 
-        port = self.port_var.get().strip()
+        # ======= Режим ПОДКЛЮЧЕНИЯ =======
+        # пользователь хочет подключиться — автоконнект включаем
+        self.autoconnect_enabled = True
+
+        port_display = self.port_var.get().strip()
+        port = extract_com_number(port_display)
+
         if not self.serial.ensure(port):
+            # не удалось подключиться
+            self.running = False
+            self.btn_connect.config(text="Connect")
+            self._set_status_stub(f"Не удалось открыть порт: {port}", "red")
             return
 
         if not port:
@@ -238,10 +297,25 @@ class MPPTTerminalPanel(Frame):
 
         self.running = True
         self.btn_connect.config(text=f"Disconnect ({self.serial.current_port})")
+        self._set_status_stub(f"Подключено к {self.serial.current_port}", "green")
 
         self.thread = threading.Thread(target=self._reader_loop, daemon=True)
         self.thread.start()
 
+    # --------------------------------------------------------------
+    # Обработка потери порта
+    # --------------------------------------------------------------
+    def _on_port_lost(self, msg: str):
+        """Обработчик потери COM-порта (вызывается из GUI-потока)."""
+        self.running = False
+        # автоконнект НЕ выключаем — пусть дальше пытается переподключиться
+        try:
+            self.serial.close()
+        except Exception:
+            pass
+
+        self.btn_connect.config(text="Connect")
+        self._set_status_stub(msg, "red")
 
     # --------------------------------------------------------------
     # Чтение UART + буферизация по кадрам (между ESC[2J])
@@ -253,7 +327,9 @@ class MPPTTerminalPanel(Frame):
             try:
                 data = self.serial.ser.read_all()
             except Exception:
-                self.running = False
+                # Порт пропал (кабель выдернули, устройство исчезло и т.п.)
+                msg = f"COM-порт {self.serial.current_port or ''} недоступен (устройство отключено?)"
+                self.after(0, lambda m=msg: self._on_port_lost(m))
                 break
 
             if not data:
@@ -274,7 +350,7 @@ class MPPTTerminalPanel(Frame):
                     self._frame_buf += buf
                     break
 
-                # всё до ESC[2J] — хвост предыдущего кадра
+                    # всё до ESC[2J] — хвост предыдущего кадра
                 prefix = buf[:idx]
                 if prefix:
                     self._frame_buf += prefix
@@ -320,7 +396,7 @@ class MPPTTerminalPanel(Frame):
             short = f"{crc:04X}"
 
             self.device_short_id = short
-            #print(f"[ID DEBUG] Calculated ID for frame: {short}   from UID={full_uid}")
+            # print(f"[ID DEBUG] Calculated ID for frame: {short}   from UID={full_uid}")
             start, end = m.span()
             masked = f"ID:{short}".ljust(end - start)
             frame_text = frame_text[:start] + masked + frame_text[end:]
@@ -343,8 +419,7 @@ class MPPTTerminalPanel(Frame):
                     break
 
         if has_passed:
-            #print("[AUTO-PASSED] TRIGGERED in _process_full_frame")
-
+            # print("[AUTO-PASSED] TRIGGERED in _process_full_frame")
             self.logger.save_block(
                 lines,
                 getattr(self.canvas_term, "last_colors", None),

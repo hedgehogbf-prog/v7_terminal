@@ -35,7 +35,7 @@ import json
 from serial.tools import list_ports
 
 from psu.owon import OwonPSU
-
+import re
 
 # Файл пресетов: ~\Documents\v7\psu_presets.json
 DEFAULT_PRESETS_PATH = os.path.join(
@@ -51,6 +51,12 @@ DEFAULT_PRESETS = {
     "12V 3A": {"U": 12.0, "I": 3.0},
 }
 
+def extract_com_number(text: str) -> str:
+    """Извлекает COMxx из строки вида 'Name (COMxx)'."""
+    m = re.search(r"(COM\d+)", text)
+    if m:
+        return m.group(1)
+    return text
 
 class PSUControlPanel(Frame):
     """Главная панель управления ЛБП в правой части окна."""
@@ -124,19 +130,29 @@ class PSUControlPanel(Frame):
     # Построение интерфейса
     # ------------------------------------------------------------------
     def _build_ui(self):
-        # Верхняя строка: COM, Обновить, Подключить, Reset COM
+        # ---------------------------------------------------------
+        # Верхняя панель: Combobox (широкий) + кнопки ниже
+        # ---------------------------------------------------------
         top = Frame(self, bg=self.bg)
         top.pack(side=TOP, fill=X, padx=4, pady=4)
 
-        Label(top, text="COM ЛБП:", bg=self.bg, fg=self.fg).pack(side=LEFT)
+        Label(top, text="COM ЛБП:", bg=self.bg, fg=self.fg).pack(side=TOP, anchor="w")
 
+        # Комбобокс делаем широкий (как в MPPT), чтобы название устройства помещалось
         self.combo_port = ttk.Combobox(
-            top, textvariable=self.port_var, width=10, state="readonly"
+            top,
+            textvariable=self.port_var,
+            width=45,       # ← можно менять на вкус
+            state="readonly",
         )
-        self.combo_port.pack(side=LEFT, padx=4)
+        self.combo_port.pack(side=TOP, fill=X, pady=2)
+
+        # Кнопки — в новой строке под комбобоксом
+        btn_row = Frame(top, bg=self.bg)
+        btn_row.pack(side=TOP, fill=X)
 
         btn_rescan = Button(
-            top,
+            btn_row,
             text="Обновить",
             command=self.rescan_ports,
             bg="#303134",
@@ -147,7 +163,7 @@ class PSUControlPanel(Frame):
         btn_rescan.pack(side=LEFT, padx=2)
 
         self.btn_connect = Button(
-            top,
+            btn_row,
             text="Подключить",
             command=self._toggle_connect,
             bg="#303134",
@@ -158,7 +174,7 @@ class PSUControlPanel(Frame):
         self.btn_connect.pack(side=LEFT, padx=2)
 
         self.btn_reset = Button(
-            top,
+            btn_row,
             text="Reset COM",
             command=self._reset_com,
             bg="#303134",
@@ -167,6 +183,9 @@ class PSUControlPanel(Frame):
             activeforeground=self.fg,
         )
         self.btn_reset.pack(side=LEFT, padx=2)
+
+
+
 
         # Статусбар ЛБП (над "Измерено")
         self.status_label = Label(
@@ -302,19 +321,33 @@ class PSUControlPanel(Frame):
     # Работа с COM-портами
     # ------------------------------------------------------------------
     def rescan_ports(self):
-        """Обновить список COM-портов ЛБП."""
+        """Обновление COM-портов ЛБП — с именами устройств."""
         ports = list(list_ports.comports())
-        devs = [p.device for p in ports]
+        labels = []
 
-        self.combo_port["values"] = devs
+        for p in ports:
+            desc = p.description or p.hwid or "Неизвестное устройство"
 
-        if devs:
-            if self.port_var.get() not in devs:
-                self.port_var.set(devs[0])
+            # Убираем (COMxx) из description, если Windows уже туда его добавил
+            if f"({p.device})" in desc:
+                desc = desc.replace(f" ({p.device})", "")
+
+            label = f"{desc} ({p.device})"
+            labels.append(label)
+
+        self.combo_port["values"] = labels
+
+        if labels:
+            cur = self.port_var.get()
+            # при старте ставим первый
+            if not cur or cur not in labels:
+                self.port_var.set(labels[0])
             self._set_status("Порты ЛБП обновлены", "cyan")
         else:
             self.port_var.set("")
+            self.combo_port["values"] = []
             self._set_status("ЛБП: нет доступных портов", "yellow")
+
 
     # вызываться из layout.AppLayout._rescan_all_com
     def rescan_ports_external(self):
@@ -351,7 +384,9 @@ class PSUControlPanel(Frame):
             return
 
         # --- Подключение ---
-        port = self.port_var.get().strip()
+        port_display = self.port_var.get().strip()
+        port = extract_com_number(port_display)
+
         if not port:
             self._set_status("ЛБП: порт не выбран", "red")
             return
