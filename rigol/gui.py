@@ -1,10 +1,18 @@
-# rigol/gui.py
 """
 Tkinter-панель управления электронной нагрузкой Rigol DL3021 (серия DL3000)
 для встраивания в v7_terminal.
 
+Расширено:
+- Поддержка двух типов нагрузок:
+    * Rigol DL3000 / DL3021 через VISA / PyVISA / SCPI
+    * Atorch DL24 через USB-UART / COM-порт (через atorch.device.AtorchDL24)
+- Единый выпадающий список ресурсов:
+    * USB0::...DL3...::INSTR [Rigol]
+    * USB-SERIAL CH340 (COM26) [Atorch]
+- Подключение/отключение, OUT, Iset, пресеты и ramp работают для обоих типов.
+
 Функционал:
-- выбор VISA-ресурса (USB0::...DL3...::INSTR)
+- выбор ресурса (VISA или COM для Atorch)
 - подключение / отключение
 - включение / выключение входа нагрузки
 - установка тока (ручной ввод)
@@ -43,7 +51,9 @@ from tkinter import (
     BOTH,
 )
 
+from serial.tools import list_ports  # для списка COM-портов Atorch
 from rigol.device import RigolDL3000, RigolPreset
+from atorch.device import AtorchDL24  # класс-обёртка для DL24
 
 
 PRESETS_FILE = Path(__file__).resolve().parent / "rigol_presets.json"
@@ -52,6 +62,9 @@ PRESETS_FILE = Path(__file__).resolve().parent / "rigol_presets.json"
 class RigolControlPanel(Frame):
     """
     Панель для размещения в правой части окна между MPPT и PSU.
+
+    Теперь умеет работать как с Rigol DL3000 (через VISA),
+    так и с Atorch DL24 (через COM-порт).
     """
 
     def __init__(self, master, bg="#202124", fg="#e8eaed", **kwargs):
@@ -60,17 +73,23 @@ class RigolControlPanel(Frame):
         self.fg = fg
 
         # ---------------- Состояние ----------------
-        self._rigol: Optional[RigolDL3000] = None
+        # Универсальный объект нагрузки: RigolDL3000 или AtorchDL24
+        self._device: Optional[object] = None
         self._polling = False
         self._poll_thread: Optional[threading.Thread] = None
 
         self._ramp_thread: Optional[threading.Thread] = None
         self._ramp_stop_flag = False
 
+        # Сопоставление "строка в OptionMenu" -> информация о ресурсе
+        # { label: {"kind": "rigol", "resource": "..."} } или {"kind": "atorch", "port": "COM5"}
+        self._resource_map: Dict[str, Dict[str, str]] = {}
+
         # ---------------- Переменные Tk ----------------
-        self.status_var = StringVar(value="Rigol: не подключено")
+        self.status_var = StringVar(value="Нагрузка: не подключена")
         self.status_color = fg
 
+        # Выбранный ресурс (VISA или COM для Atorch)
         self.resource_var = StringVar(value="")
         self.output_state_var = StringVar(value="OFF")
 
@@ -94,7 +113,7 @@ class RigolControlPanel(Frame):
         # ---------------- Сборка интерфейса ----------------
         self._build_ui()
 
-        # Первый рескан ресурсов
+        # Первый рескан ресурсов (VISA + COM)
         self._rescan_resources()
 
     # =====================================================
@@ -108,7 +127,7 @@ class RigolControlPanel(Frame):
 
         Label(
             top,
-            text="Rigol DL3021",
+            text="Electronic Load (Rigol / Atorch)",
             bg=self.bg,
             fg=self.fg,
             font=("Segoe UI", 10, "bold"),
@@ -127,7 +146,7 @@ class RigolControlPanel(Frame):
         row_res = Frame(self, bg=self.bg)
         row_res.pack(side=TOP, fill=X, padx=4, pady=2)
 
-        Label(row_res, text="VISA:", bg=self.bg, fg=self.fg).pack(side=LEFT)
+        Label(row_res, text="Ресурс:", bg=self.bg, fg=self.fg).pack(side=LEFT)
 
         self.resource_menu = OptionMenu(row_res, self.resource_var, "")
         self.resource_menu.config(bg="#303134", fg=self.fg, highlightthickness=0)
@@ -221,7 +240,7 @@ class RigolControlPanel(Frame):
             bg=self.bg,
             fg="#b0b0b0",
             font=("Consolas", 11)
-        ).pack(side=LEFT, padx=(12,0))
+        ).pack(side=LEFT, padx=(12, 0))
 
         Label(
             row_meas,
@@ -232,7 +251,6 @@ class RigolControlPanel(Frame):
             width=7,
             anchor="w"
         ).pack(side=LEFT, padx=4)
-
 
         # ----- Пресеты -----
         presets_frame = Frame(self, bg=self.bg)
@@ -441,40 +459,111 @@ class RigolControlPanel(Frame):
     # =====================================================
 
     def _rescan_resources(self):
-        resources = RigolDL3000.discover_usb_resources()
+        """
+        Обновление списка ресурсов:
+        - VISA-ресурсы (Rigol DL3000)
+        - COM-порты (как в PSU-панели), помеченные как [Atorch]
+        """
+        self._resource_map.clear()
+        labels: List[str] = []
+
+        # --- VISA (Rigol) ---
+        try:
+            rigol_resources = RigolDL3000.discover_usb_resources()
+        except Exception as e:
+            rigol_resources = []
+            self._set_status(f"Ошибка сканирования VISA: {e}", "red")
+        else:
+            for r in rigol_resources:
+                label = f"{r} [Rigol]"
+                self._resource_map[label] = {"kind": "rigol", "resource": r}
+                labels.append(label)
+
+        # --- COM-порты (Atorch) ---
+        try:
+            ports = list(list_ports.comports())
+        except Exception:
+            ports = []
+
+        for p in ports:
+            desc = p.description or p.hwid or "Неизвестное устройство"
+
+            # как в psu/gui.py — убираем (COMxx) из description, если Windows уже добавил
+            if f"({p.device})" in desc:
+                desc = desc.replace(f" ({p.device})", "")
+
+            pretty = f"{desc} ({p.device})"
+            label = f"{pretty}"
+            self._resource_map[label] = {"kind": "atorch", "port": p.device}
+            labels.append(label)
+
         # Обновим OptionMenu
         menu = self.resource_menu["menu"]
         menu.delete(0, "end")
         current_value = self.resource_var.get()
-        if resources:
-            for r in resources:
-                menu.add_command(label=r, command=lambda v=r: self.resource_var.set(v))
-            if current_value not in resources:
-                self.resource_var.set(resources[0])
+
+        if labels:
+            for lbl in labels:
+                menu.add_command(
+                    label=lbl,
+                    command=lambda v=lbl: self.resource_var.set(v),
+                )
+            if current_value not in labels:
+                self.resource_var.set(labels[0])
+            self._set_status("Сканирование ресурсов (Rigol/Atorch) завершено", "cyan")
         else:
             self.resource_var.set("")
-        self._set_status("Сканирование VISA ресурсов завершено", "cyan")
+            self._set_status("Нет доступных ресурсов Rigol/Atorch", "yellow")
 
     def _toggle_connect(self):
-        if self._rigol is None:
+        if self._device is None:
             self._connect()
         else:
             self._disconnect()
 
     def _connect(self):
-        resource = self.resource_var.get().strip()
-        if not resource:
-            self._set_status("Нет выбранного VISA-ресурса", "red")
+        resource_label = self.resource_var.get().strip()
+        if not resource_label:
+            self._set_status("Нет выбранного ресурса", "red")
             return
+
+        info = self._resource_map.get(resource_label)
+
+        # Fallback: если по какой-то причине _resource_map пуст,
+        # попробуем угадать тип по строке.
+        if info is None:
+            if "USB" in resource_label or "::" in resource_label:
+                info = {"kind": "rigol", "resource": resource_label}
+            elif "COM" in resource_label:
+                # Попробуем вытащить COMxx из скобок
+                port = resource_label
+                import re
+                m = re.search(r"(COM\d+)", resource_label)
+                if m:
+                    port = m.group(1)
+                info = {"kind": "atorch", "port": port}
+            else:
+                self._set_status("Неизвестный формат ресурса", "red")
+                return
+
+        kind = info.get("kind")
+
         try:
-            dev = RigolDL3000(resource)
-            dev.open()
-            idn = dev.read_identity()
+            if kind == "atorch":
+                port = info["port"]
+                dev = AtorchDL24(port)
+                dev.open()
+                idn = dev.read_identity()
+            else:
+                visa_res = info["resource"]
+                dev = RigolDL3000(visa_res)
+                dev.open()
+                idn = dev.read_identity()
         except Exception as e:
             self._set_status(f"Ошибка подключения: {e}", "red")
             return
 
-        self._rigol = dev
+        self._device = dev
         self.btn_connect.config(text="Disconnect", bg="#5f6368")
         self.btn_output.config(state="normal")
         self.btn_set_current.config(state="normal")
@@ -482,7 +571,7 @@ class RigolControlPanel(Frame):
         self.btn_run_down.config(state="normal")
         self.btn_stop_ramp.config(state="normal")
 
-        self._set_status(f"Rigol подключен: {idn}", "green")
+        self._set_status(f"Нагрузка подключена: {idn}", "green")
         self.output_state_var.set("OFF")
         self.btn_output.config(text="OUT OFF", bg="#303134")
 
@@ -492,19 +581,20 @@ class RigolControlPanel(Frame):
     def _disconnect(self):
         self._stop_polling()
         self._stop_ramp()
-        if self._rigol is not None:
+        if self._device is not None:
             try:
-                self._rigol.close()
+                # и RigolDL3000, и AtorchDL24 имеют close()
+                self._device.close()
             except Exception:
                 pass
-        self._rigol = None
+        self._device = None
         self.btn_connect.config(text="Connect", bg="#1a73e8")
         self.btn_output.config(state="disabled")
         self.btn_set_current.config(state="disabled")
         self.btn_run_up.config(state="disabled")
         self.btn_run_down.config(state="disabled")
         self.btn_stop_ramp.config(state="disabled")
-        self._set_status("Rigol отключен", "yellow")
+        self._set_status("Нагрузка отключена", "yellow")
 
     # Опрос V/I в фоне
 
@@ -521,17 +611,16 @@ class RigolControlPanel(Frame):
             self._poll_thread = None
 
     def _poll_loop(self):
-        while self._polling and self._rigol is not None:
+        while self._polling and self._device is not None:
             try:
-                v = self._rigol.measure_voltage()
-                i = self._rigol.measure_current()
+                v = self._device.measure_voltage()
+                i = self._device.measure_current()
                 self.v_meas_var.set(round(v, 4))
                 self.i_meas_var.set(round(i, 4))
             except Exception:
                 # не заваливаем поток
                 pass
             time.sleep(0.5)
-
 
     def _rename_preset(self):
         old = self.selected_preset_name.get()
@@ -555,23 +644,23 @@ class RigolControlPanel(Frame):
     # =====================================================
 
     def _toggle_output(self):
-        if self._rigol is None:
+        if self._device is None:
             return
         try:
-            state = self._rigol.get_output()
+            state = self._device.get_output()
             new_state = not state
-            self._rigol.set_output(new_state)
+            self._device.set_output(new_state)
             self.output_state_var.set("ON" if new_state else "OFF")
             self.btn_output.config(
                 text=f"OUT {'ON' if new_state else 'OFF'}",
                 bg="#188038" if new_state else "#303134",
             )
-            self._set_status(f"Выход Rigol: {'ON' if new_state else 'OFF'}", "green")
+            self._set_status(f"Выход нагрузки: {'ON' if new_state else 'OFF'}", "green")
         except Exception as e:
             self._set_status(f"Ошибка OUT: {e}", "red")
 
     def _apply_current(self):
-        if self._rigol is None:
+        if self._device is None:
             return
         try:
             current = float(self.i_set_var.get())
@@ -579,7 +668,7 @@ class RigolControlPanel(Frame):
             self._set_status("Некорректный ток", "red")
             return
         try:
-            self._rigol.set_current(current)
+            self._device.set_current(current)
             self._set_status(f"Iset = {current} A", "green")
         except Exception as e:
             self._set_status(f"Ошибка установки тока: {e}", "red")
@@ -589,8 +678,8 @@ class RigolControlPanel(Frame):
     # =====================================================
 
     def _run_ramp(self, direction: str):
-        if self._rigol is None:
-            self._set_status("Rigol не подключен", "red")
+        if self._device is None:
+            self._set_status("Нагрузка не подключена", "red")
             return
         name = self.selected_preset_name.get()
         p = self.presets.get(name)
@@ -640,14 +729,14 @@ class RigolControlPanel(Frame):
             delay = max(0.0, preset.delay_s)
 
             current = i_start
-            self._rigol.set_current(current)
+            self._device.set_current(current)
             self.i_set_var.set(current)
 
             for _ in range(steps):
-                if self._ramp_stop_flag or self._rigol is None:
+                if self._ramp_stop_flag or self._device is None:
                     break
                 current += step
-                # ограничим диапазоном [min(i_start, i_end), max(...)]
+                # ограничим диапазоном [min(i_start, i_end), max(...)])
                 low = min(i_start, i_end)
                 high = max(i_start, i_end)
                 if current < low:
@@ -655,7 +744,7 @@ class RigolControlPanel(Frame):
                 if current > high:
                     current = high
 
-                self._rigol.set_current(current)
+                self._device.set_current(current)
                 self.i_set_var.set(current)
                 time.sleep(delay)
 
