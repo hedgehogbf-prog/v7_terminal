@@ -1,9 +1,9 @@
 # gui/layout.py
-from tkinter import Frame, TOP, BOTTOM, LEFT, RIGHT, BOTH, X
+from tkinter import Frame, TOP, BOTTOM, LEFT, RIGHT, BOTH, X, Y
 from mppt.gui import MPPTTerminalPanel
 from psu.gui import PSUControlPanel
 from gui.statusbar import StatusBar
-
+from rigol.gui import RigolControlPanel
 
 class AppLayout(Frame):
     def __init__(self, master, bg="#202124", fg="#e8eaed", **kwargs):
@@ -32,11 +32,17 @@ class AppLayout(Frame):
         main = Frame(self, bg=bg)
         main.pack(side=TOP, fill=BOTH, expand=True)
 
-        # Панель MPPT терминала
+        # Панель MPPT терминала (слева)
         self.mppt_panel = MPPTTerminalPanel(main, bg=bg, fg=fg)
-        self.mppt_panel.pack(side=LEFT, fill=BOTH, expand=True)
+        self.mppt_panel.pack(side=LEFT, fill=Y)
+        self.mppt_panel.config(width=800)   # ← нужная ширина
 
-        # Панель ЛБП (Owon SPE6103)
+
+        # Панель Rigol DL3021 (по центру справа)
+        self.rigol_panel = RigolControlPanel(main, bg=bg, fg=fg, width=320)
+        self.rigol_panel.pack(side=RIGHT, fill="y")
+
+        # Панель ЛБП (Owon SPE6103) — самая правая
         self.psu_panel = PSUControlPanel(main, bg=bg, fg=fg, width=320)
         self.psu_panel.pack(side=RIGHT, fill="y")
 

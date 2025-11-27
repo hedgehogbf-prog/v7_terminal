@@ -126,6 +126,30 @@ class PSUControlPanel(Frame):
         if self._global_status_cb:
             self._global_status_cb(text, color=color)
 
+    # --------------------------------------------------------------
+# Подсветка измеренного тока по отклонению от уставки
+# --------------------------------------------------------------
+    def _update_current_color(self):
+        """Подсвечивает I_meas зелёным/красным в зависимости от попадания в окно ±0.100 А."""
+        try:
+            imeas = float(self.i_meas_var.get().split()[0])
+            iset = float(self.i_set_var.get())
+        except Exception:
+            return
+
+        diff = abs(imeas - iset)
+
+        if diff <= 0.100:
+            # ВНЕ ДОПУСКА — красный
+            color = "#ff5555"
+        else:
+            # ВНЕ ДОПУСКА — красный
+            color = "#ff5555"
+            # В НОРМЕ — ярко-зелёный
+            color = "#55ff55"
+        self.i_meas_label.config(fg=color)
+
+
     # ------------------------------------------------------------------
     # Построение интерфейса
     # ------------------------------------------------------------------
@@ -215,13 +239,14 @@ class PSUControlPanel(Frame):
             font=self.font_big,
         ).pack(anchor="w")
 
-        Label(
+        self.i_meas_label = Label(
             left,
             textvariable=self.i_meas_var,
             bg=self.bg,
             fg="#55ff55",
             font=self.font_big,
-        ).pack(anchor="w")
+        )
+        self.i_meas_label.pack(anchor="w")
 
         # Правая колонка — уставки
         right = Frame(center, bg=self.bg)
@@ -482,6 +507,7 @@ class PSUControlPanel(Frame):
             i = self.psu.measure_current()
             self.u_meas_var.set(f"{u:.3f} V")
             self.i_meas_var.set(f"{i:.3f} A")
+            self._update_current_color()
         except Exception as e:
             self._set_status(f"Ошибка измерения ЛБП: {e}", "red")
 

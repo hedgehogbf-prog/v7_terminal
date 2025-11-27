@@ -1,0 +1,14 @@
+{
+  "Soft 2→0A": {
+    "i_start": 2.0,
+    "i_end": 0.0,
+    "step": 0.1,
+    "delay_s": 0.1
+  },
+  "Soft": {
+    "i_start": 0.0,
+    "i_end": 4.0,
+    "step": 0.05,
+    "delay_s": 0.01
+  }
+}
