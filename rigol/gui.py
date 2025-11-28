@@ -30,6 +30,8 @@ from __future__ import annotations
 import json
 import threading
 import time
+import os
+from pathlib import Path
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -56,7 +58,11 @@ from rigol.device import RigolDL3000, RigolPreset
 from atorch.device import AtorchDL24  # класс-обёртка для DL24
 
 
-PRESETS_FILE = Path(__file__).resolve().parent / "rigol_presets.json"
+# Храним пресеты вне exe — в APPDATA
+APPDATA_DIR = Path(os.getenv("APPDATA")) / "v7_terminal"
+APPDATA_DIR.mkdir(exist_ok=True)
+
+PRESETS_FILE = APPDATA_DIR / "rigol_presets.json"
 
 
 class RigolControlPanel(Frame):
@@ -369,16 +375,16 @@ class RigolControlPanel(Frame):
         else:
             # пресеты по умолчанию
             data = {
-                "Soft 0→2A": {
+                "Soft 0→4A": {
                     "i_start": 0.0,
-                    "i_end": 2.0,
-                    "step": 0.1,
-                    "delay_s": 0.1,
+                    "i_end": 4.0,
+                    "step": 0.05,
+                    "delay_s": 0.01,
                 },
-                "Soft 2→0A": {
-                    "i_start": 2.0,
-                    "i_end": 0.0,
-                    "step": 0.1,
+                "Hard 0→4A": {
+                    "i_start": 0.0,
+                    "i_end": 4.0,
+                    "step": 0.5,
                     "delay_s": 0.1,
                 },
             }
@@ -571,7 +577,7 @@ class RigolControlPanel(Frame):
         self.btn_run_down.config(state="normal")
         self.btn_stop_ramp.config(state="normal")
 
-        self._set_status(f"Нагрузка подключена: {idn}", "green")
+        self._set_status(f"Нагрузка подключена", "green")
         self.output_state_var.set("OFF")
         self.btn_output.config(text="OUT OFF", bg="#303134")
 
