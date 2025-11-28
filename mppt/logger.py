@@ -330,9 +330,9 @@ class MPPTLogger:
                 return
 
             if not cur_id:
-                self._set_status(
-                    "MPPT: PASSED без ID — авто-сохранение пропущено", "yellow"
-                )
+                #self._set_status(
+                #    "MPPT: PASSED без ID — авто-сохранение пропущено", "yellow"
+                #)
                 return
 
             if self.last_passed_id == cur_id:
